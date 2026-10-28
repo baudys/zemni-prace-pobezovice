@@ -4,7 +4,7 @@ import { useState } from "react";
 import { site } from "@/content/site";
 import { AssetOrPlaceholder } from "@/components/ui/AssetOrPlaceholder";
 import { TextureBackground } from "@/components/motion/TextureBackground";
-import { showPlaceholders } from "@/lib/placeholders";
+import { isPlaceholderPhotoPath, showPlaceholders } from "@/lib/placeholders";
 
 export function Gallery() {
   const [active, setActive] = useState<number | null>(null);
@@ -24,44 +24,32 @@ export function Gallery() {
           Zatím ukázkové podklady – doplníme fotky z akcí.
         </p>
 
-        <div className="mt-10 hidden columns-2 gap-4 md:block lg:columns-3">
+        <ul className="mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 md:grid md:snap-none md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-3">
           {site.gallery.map((item, i) => (
-            <button
+            <li
               key={item.src}
-              type="button"
-              className="mb-4 block w-full break-inside-avoid overflow-hidden rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-komatsu-yellow"
-              onClick={() => setActive(i)}
+              className="w-72 shrink-0 snap-center md:w-auto md:shrink"
             >
-              <AssetOrPlaceholder
-                src={item.src}
-                alt={item.alt}
-                className="w-full object-cover transition duration-300 hover:scale-[1.02]"
-              />
-              {item.example && showEx ? (
-                <span className="mt-1 block text-left text-xs text-komatsu-yellow">
-                  UKÁZKOVÁ DATA / placeholder
-                </span>
-              ) : null}
-            </button>
+              <button
+                type="button"
+                className="relative block w-full overflow-hidden rounded-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-komatsu-yellow"
+                onClick={() => setActive(i)}
+              >
+                <AssetOrPlaceholder
+                  src={item.src}
+                  alt={item.alt}
+                  className="h-48 w-full object-cover transition duration-300 hover:scale-[1.02] md:h-auto md:min-h-[12rem]"
+                  loading="lazy"
+                />
+                {showEx && (item.example || isPlaceholderPhotoPath(item.src)) ? (
+                  <span className="absolute right-2 top-2 rounded bg-black/70 px-2 py-0.5 text-[10px] uppercase tracking-wide text-komatsu-yellow">
+                    ilustrační
+                  </span>
+                ) : null}
+              </button>
+            </li>
           ))}
-        </div>
-
-        <div className="mt-8 flex gap-4 overflow-x-auto pb-2 md:hidden">
-          {site.gallery.map((item, i) => (
-            <button
-              key={item.src}
-              type="button"
-              className="w-72 shrink-0 overflow-hidden rounded-lg"
-              onClick={() => setActive(i)}
-            >
-              <AssetOrPlaceholder
-                src={item.src}
-                alt={item.alt}
-                className="h-48 w-full object-cover"
-              />
-            </button>
-          ))}
-        </div>
+        </ul>
       </div>
 
       {active !== null && site.gallery[active] ? (
@@ -86,6 +74,7 @@ export function Gallery() {
             src={site.gallery[active].src}
             alt={site.gallery[active].alt}
             className="max-h-[85vh] max-w-5xl object-contain"
+            loading="lazy"
           />
         </div>
       ) : null}

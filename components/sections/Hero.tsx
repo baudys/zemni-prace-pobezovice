@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { track } from "@vercel/analytics";
@@ -18,6 +18,17 @@ export function Hero() {
   const mediaRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
   const lowEnd = useLowEndDevice();
+  const [poster, setPoster] = useState("/hero/hero-poster.webp");
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const apply = () => {
+      setPoster(mq.matches ? "/hero/hero-poster-mobile.webp" : "/hero/hero-poster.webp");
+    };
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -58,9 +69,9 @@ export function Hero() {
       });
       gsap.fromTo(
         mediaRef.current,
-        { scale: 1 },
+        { scale: 1.02 },
         {
-          scale: 1.05,
+          scale: 1,
           ease: "none",
           scrollTrigger: {
             trigger: rootRef.current,
@@ -74,6 +85,8 @@ export function Hero() {
     return () => ctx.revert();
   }, [reduced]);
 
+  const staticHero = reduced || lowEnd;
+
   return (
     <section
       ref={rootRef}
@@ -83,28 +96,32 @@ export function Hero() {
       <div ref={mediaRef} className="absolute inset-0 origin-center">
         <video
           ref={videoRef}
-          className="h-full w-full object-cover object-[40%_100%] md:object-[40%_100%]"
+          className="h-full w-full object-cover object-[center_bottom] md:scale-[0.98] md:object-[40%_85%]"
           muted
           playsInline
           loop
           preload="metadata"
-          poster="/hero/hero-poster.webp"
+          poster={poster}
           aria-hidden
         >
-          <source
-            media="(max-width: 767px)"
-            src="/hero/hero-loop-mobile.mp4"
-            type="video/mp4"
-          />
-          <source src="/hero/hero-loop.webm" type="video/webm" />
-          <source src="/hero/hero-loop.mp4" type="video/mp4" />
+          {!staticHero ? (
+            <>
+              <source
+                media="(max-width: 767px)"
+                src="/hero/hero-loop-mobile.mp4"
+                type="video/mp4"
+              />
+              <source src="/hero/hero-loop.webm" type="video/webm" />
+              <source src="/hero/hero-loop.mp4" type="video/mp4" />
+            </>
+          ) : null}
         </video>
         <div className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/25 to-black/55" />
       </div>
 
       <div
         ref={textRef}
-        className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center px-4 pb-[34vh] pt-[18vh] text-center md:pb-[36vh] md:pt-[16vh]"
+        className="relative z-10 mx-auto flex w-full max-w-5xl flex-col items-center px-4 pb-[38vh] pt-[14vh] text-center md:pb-[40vh] md:pt-[12vh]"
       >
         <h1 className="font-display text-4xl uppercase leading-[0.95] text-white drop-shadow-lg sm:text-6xl md:text-7xl lg:text-8xl">
           {site.hero.h1}
@@ -132,7 +149,7 @@ export function Hero() {
         <a
           href="#v-akci"
           className="flex flex-col items-center gap-2 text-xs uppercase tracking-[0.2em] text-white/70"
-          aria-label="Scrollovat dál"
+          aria-label="Dolů – scrollovat k animaci výkopu"
         >
           <span
             className={`block h-10 w-6 rounded-full border border-white/40 ${
@@ -141,7 +158,7 @@ export function Hero() {
           >
             <span className="mx-auto mt-2 block h-2 w-1 rounded bg-komatsu-yellow" />
           </span>
-          pás
+          Dolů
         </a>
       </div>
     </section>

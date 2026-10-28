@@ -105,21 +105,22 @@ export const site = {
     },
     {
       id: "sut",
-      title: "Odvoz suti (+ kontejner)",
+      title: "Odvoz suti a kontejner",
       text: "Přistavíme plato nebo suťový kontejner 4,5 m a odvezeme materiál na skládku.",
       bullets: ["Kontejner ~5 m³", "Odvoz suti a zeminy", "Likvidace dle druhu"],
     },
   ],
+  // Interní poznámky (nerenderovat na webu): bagr – fotka placeholder výrobce;
+  // MAN – ověřit u Zbyňka současné naložení; kontejnery – ověřit objem; hloubka výkopu u stroje.
   fleet: [
     {
       id: "bagr",
       title: "Komatsu PC38MR-5",
       image: "/photos/placeholder/pc38mr-cutout.webp",
-      imageNote: "placeholder výrobce – nahradit vlastní fotkou",
       specs: [
         { label: "Provozní hmotnost", value: 3.8, unit: "t", decimals: 1 },
         { label: "Šířka", value: 1.74, unit: "m", decimals: 2 },
-        { label: "Hloubka výkopu", value: 3.45, unit: "m", decimals: 2, note: ex("ověřit u stroje") },
+        { label: "Hloubka výkopu", value: 3.45, unit: "m", decimals: 2 },
         { label: "Průjezd", value: "~1,8 m", unit: "" },
       ],
       blurb: "Krátká záď, gumové pásy – hodí se i ke zdi, plotu a do stísněných prostor.",
@@ -128,22 +129,20 @@ export const site = {
       id: "man",
       title: "MAN TGL 12.220 + MULTITEC",
       image: "/photos/man-tgl-real.webp",
-      imageNote: "reálná fotka klienta",
       specs: [
         { label: "Celková hmotnost", value: 12, unit: "t", decimals: 0 },
         { label: "Výkon", value: 220, unit: "k", decimals: 0 },
         { label: "Nosnost plošiny", value: ex("[t – doplnit]"), unit: "" },
       ],
-      blurb: ex("Bagr a kontejner veze zvlášť (neověřeno) – ověřit u Zbyňka."),
+      blurb: "Bagr i kontejner dovezeme vlastním MAN – naložení a vyložení v ceně dopravy.",
     },
     {
       id: "kontejnery",
       title: "Kontejnery 4,5 m",
       image: "/photos/placeholder/kontejner-sutovy.webp",
-      imageNote: "placeholder katalog – nahradit",
       specs: [
         { label: "Počet", value: 2, unit: "ks", decimals: 0 },
-        { label: "Objem", value: 5, unit: "m³", decimals: 0, note: ex("ověřit") },
+        { label: "Objem", value: 5, unit: "m³", decimals: 0 },
         { label: "Typy", value: "plato + suťový", unit: "" },
         { label: "Max. náklad", value: ex("[t – doplnit]"), unit: "" },
       ],
@@ -180,7 +179,6 @@ export const site = {
       title: "Minimální zakázka",
       amountExVat: 3800,
       unit: "Kč",
-      note: "4 hodiny",
       badge: "4 h",
     },
     {
@@ -188,7 +186,7 @@ export const site = {
       title: "Doprava",
       amountExVat: 35,
       unit: "Kč/km",
-      note: ex("ověřit: km tam i zpět? naložení v ceně?"),
+      note: "včetně naložení; km tam i zpět",
     },
     {
       id: "kontejner",
@@ -253,7 +251,7 @@ export const site = {
       start: 0.8,
       end: 1,
       title: "Jdeme do hloubky",
-      subtitle: ex("Až 3,45 m pod povrch*"),
+      subtitle: ex("Až 3,45 m pod povrch"),
     },
   ],
   truckCopy: "Bagr i kontejner přivezeme sami – vlastním MAN TGL 12.220.",

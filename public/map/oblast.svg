@@ -1,4 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Oblast posobnosti 50 km od Pob~ovic">
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Oblast p?sobnosti 50 km od Pob?žovic">
   <defs>
     <radialGradient id="g" cx="50%" cy="50%" r="50%">
       <stop offset="0%" stop-color="#3a2a1c"/>
@@ -6,7 +7,6 @@
     </radialGradient>
   </defs>
   <rect width="800" height="800" fill="url(#g)"/>
-  <!-- stylized contour rings -->
   <g fill="none" stroke="#C8A877" stroke-opacity="0.25" stroke-width="1">
     <ellipse cx="400" cy="400" rx="90" ry="70"/>
     <ellipse cx="400" cy="400" rx="160" ry="125"/>
@@ -15,30 +15,39 @@
     <path d="M80 420 C 180 300, 300 280, 400 320 S 620 380, 720 300"/>
     <path d="M100 520 C 220 480, 340 560, 460 500 S 640 470, 740 540"/>
   </g>
-  <!-- radius rings 10 / 25 / 50 km (relative) -->
   <g fill="none" stroke="#F5B800" stroke-width="2">
-    <circle class="ring" cx="400" cy="400" r="70" stroke-opacity="0.45"/>
-    <circle class="ring" cx="400" cy="400" r="160" stroke-opacity="0.65"/>
-    <circle class="ring" cx="400" cy="400" r="300" stroke-opacity="0.95"/>
+    <circle cx="400" cy="400" r="70" stroke-opacity="0.45"/>
+    <circle cx="400" cy="400" r="160" stroke-opacity="0.65"/>
+    <circle cx="400" cy="400" r="300" stroke-opacity="0.95"/>
   </g>
-  <!-- muted border zone west/south -->
   <path d="M40 120 L40 760 L280 760 L180 420 Z" fill="#000" fill-opacity="0.28"/>
   <text x="70" y="700" fill="#888" font-size="14" font-family="sans-serif">Bavorsko</text>
-  <!-- center -->
   <circle cx="400" cy="400" r="8" fill="#E1011B"/>
   <circle cx="400" cy="400" r="16" fill="none" stroke="#E1011B" stroke-width="2"/>
-  <text x="420" y="406" fill="#fff" font-size="18" font-family="sans-serif" font-weight="700">Pob~ovice</text>
-  <!-- towns -->
+  <text x="420" y="406" fill="#fff" font-size="18" font-family="sans-serif" font-weight="700">Pob?žovice</text>
   <g fill="#F5B800" font-size="13" font-family="sans-serif">
-    <circle cx="470" cy="455" r="3"/><text x="478" y="459">Doma~lice</text>
-    <circle cx="455" cy="360" r="3"/><text x="463" y="364">HostouH</text>
-    <circle cx="510" cy="390" r="3"/><text x="518" y="394">Horaovský Týn</text>
-    <circle cx="330" cy="360" r="3"/><text x="250" y="364">Blá n. R.</text>
-    <circle cx="520" cy="520" r="3"/><text x="528" y="524">Kdyn</text>
-    <circle cx="580" cy="430" r="3"/><text x="588" y="434">Holýaov</text>
-    <circle cx="300" cy="480" r="3"/><text x="220" y="484">. Kubice</text>
-    <circle cx="560" cy="300" r="3"/><text x="568" y="304">StaHkov</text>
-    <circle cx="250" cy="300" r="3"/><text x="180" y="304">PYimda</text>
+    <!-- Domažlice JV -->
+    <circle cx="485" cy="470" r="3"/><text x="493" y="474">Domažlice</text>
+    <!-- Hostou? SV -->
+    <circle cx="445" cy="350" r="3"/><text x="453" y="354">Hostou?</text>
+    <!-- Horšovský Týn V -->
+    <circle cx="520" cy="390" r="3"/><text x="528" y="394">Horšovský Týn</text>
+    <!-- B?lá nad Radbuzou SZ -->
+    <circle cx="310" cy="340" r="3"/><text x="220" y="344">B?lá n. R.</text>
+    <!-- Kdyn? JV -->
+    <circle cx="510" cy="530" r="3"/><text x="518" y="534">Kdyn?</text>
+    <!-- Holýšov V -->
+    <circle cx="560" cy="420" r="3"/><text x="568" y="424">Holýšov</text>
+    <!-- ?eská Kubice J -->
+    <circle cx="390" cy="560" r="3"/><text x="300" y="564">?eská Kubice</text>
+    <!-- Sta?kov SV -->
+    <circle cx="555" cy="300" r="3"/><text x="563" y="304">Sta?kov</text>
+    <!-- P?imda S/SZ -->
+    <circle cx="280" cy="280" r="3"/><text x="210" y="284">P?imda</text>
+    <!-- Kolove? V -->
+    <circle cx="545" cy="470" r="3"/><text x="553" y="474">Kolove?</text>
+    <!-- Bor S -->
+    <circle cx="350" cy="250" r="3"/><text x="358" y="254">Bor</text>
   </g>
   <text x="400" y="740" text-anchor="middle" fill="#C8A877" font-size="14" font-family="sans-serif">okruh 50 km · 10 / 25 / 50</text>
   <text x="400" y="770" text-anchor="middle" fill="#666" font-size="11" font-family="sans-serif">© OpenStreetMap contributors · stylizovaná mapa</text>

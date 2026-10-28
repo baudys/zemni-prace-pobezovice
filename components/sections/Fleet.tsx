@@ -9,8 +9,17 @@ import { Placeholder } from "@/components/ui/Placeholder";
 import { AssetOrPlaceholder } from "@/components/ui/AssetOrPlaceholder";
 import { TextureBackground } from "@/components/motion/TextureBackground";
 import { useReducedMotion } from "@/components/motion/useReducedMotion";
+import { isPlaceholderPhotoPath, showPlaceholders } from "@/lib/placeholders";
 
 gsap.registerPlugin(ScrollTrigger);
+
+function formatSpecNumber(value: number, decimals?: number): string {
+  const d = decimals ?? 0;
+  return value.toLocaleString("cs-CZ", {
+    minimumFractionDigits: d,
+    maximumFractionDigits: d,
+  });
+}
 
 function SpecValue({
   value,
@@ -27,7 +36,7 @@ function SpecValue({
   useEffect(() => {
     if (typeof value !== "number" || !ref.current) return;
     if (reduced) {
-      ref.current.textContent = value.toFixed(decimals ?? 0);
+      ref.current.textContent = formatSpecNumber(value, decimals);
       return;
     }
     const obj = { n: 0 };
@@ -42,7 +51,7 @@ function SpecValue({
       },
       onUpdate: () => {
         if (ref.current) {
-          ref.current.textContent = obj.n.toFixed(decimals ?? 0);
+          ref.current.textContent = formatSpecNumber(obj.n, decimals);
         }
       },
     });
@@ -61,13 +70,15 @@ function SpecValue({
 
   return (
     <span className="font-display text-2xl text-komatsu-yellow">
-      <span ref={ref}>{reduced ? value.toFixed(decimals ?? 0) : "0"}</span>
+      <span ref={ref}>{reduced ? formatSpecNumber(value, decimals) : "0"}</span>
       {unit ? ` ${unit}` : ""}
     </span>
   );
 }
 
 export function Fleet() {
+  const showEx = showPlaceholders();
+
   return (
     <TextureBackground
       id="technika"
@@ -83,30 +94,27 @@ export function Fleet() {
         <div className="mt-10 grid gap-6 lg:grid-cols-3">
           {site.fleet.map((item) => (
             <Card key={item.id} className="overflow-hidden !p-0">
-              <AssetOrPlaceholder
-                src={item.image}
-                alt={item.title}
-                className="h-48 w-full object-cover"
-              />
+              <div className="relative">
+                <AssetOrPlaceholder
+                  src={item.image}
+                  alt={item.title}
+                  className="h-48 w-full object-cover"
+                  loading="lazy"
+                />
+                {showEx && isPlaceholderPhotoPath(item.image) ? (
+                  <span className="absolute right-2 top-2 rounded bg-black/70 px-2 py-0.5 text-[10px] uppercase tracking-wide text-komatsu-yellow">
+                    ilustrační
+                  </span>
+                ) : null}
+              </div>
               <div className="p-6">
                 <h3 className="font-display text-2xl uppercase">{item.title}</h3>
-                <p className="mt-2 text-sm text-white/70">
-                  {typeof item.blurb === "string" ? (
-                    item.blurb
-                  ) : (
-                    <Placeholder value={item.blurb} />
-                  )}
-                </p>
+                <p className="mt-2 text-sm text-white/70">{item.blurb}</p>
                 <dl className="mt-5 space-y-3 border-t border-white/10 pt-4">
                   {item.specs.map((spec) => (
                     <div key={spec.label} className="flex items-end justify-between gap-3">
                       <dt className="text-xs uppercase tracking-wide text-white/55">
                         {spec.label}
-                        {"note" in spec && spec.note ? (
-                          <span className="ml-1 text-komatsu-yellow">
-                            (<Placeholder value={spec.note} />
-                          </span>
-                        ) : null}
                       </dt>
                       <dd className="text-right">
                         {typeof spec.value === "string" ? (
@@ -124,9 +132,6 @@ export function Fleet() {
                     </div>
                   ))}
                 </dl>
-                {"imageNote" in item ? (
-                  <p className="mt-3 text-xs text-white/40">{item.imageNote}</p>
-                ) : null}
               </div>
             </Card>
           ))}

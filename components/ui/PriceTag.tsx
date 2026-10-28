@@ -34,12 +34,13 @@ export function PriceTag({
           <p className="font-display text-3xl text-komatsu-yellow">{customLabel}</p>
         ) : (
           <>
-            <p className="font-display text-3xl md:text-4xl text-white">
+            <p className="font-display text-3xl text-white md:text-4xl">
               {from ? "od " : ""}
               {formatCzk(amountExVat)}{" "}
               <span className="text-xl text-white/70">{unit}</span>
             </p>
             <p className="mt-1 text-sm text-white/60">
+              {from ? "od " : ""}
               {formatCzk(withVat(amountExVat))} {unit} s DPH
             </p>
           </>

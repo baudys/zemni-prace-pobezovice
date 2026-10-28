@@ -4,7 +4,7 @@ import { site, unwrap } from "@/content/site";
 import { Placeholder } from "@/components/ui/Placeholder";
 
 export const metadata: Metadata = {
-  title: `Zásady ochrany osobních údajů | ${unwrap(site.name)}`,
+  title: "Zásady zpracování osobních údajů",
   robots: { index: false, follow: false },
 };
 
@@ -35,8 +35,11 @@ export default function PrivacyPage() {
       </p>
       <p className="mt-4">
         Máte právo na přístup, opravu, výmaz, omezení zpracování a stížnost u
-        ÚOOÚ. Tento text je pracovní šablona – před spuštěním doplnit dle
-        skutečného správce a GDPR checklistu (BRIEF kap. 9).
+        ÚOOÚ. Před spuštěním webu text doplní správce podle skutečného provozu a
+        GDPR checklistu.
+      </p>
+      <p className="mt-8 text-sm text-white/50">
+        {unwrap(site.name)} · {unwrap(site.domain)}
       </p>
     </main>
   );

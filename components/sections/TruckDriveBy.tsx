@@ -18,19 +18,21 @@ export function TruckDriveBy() {
     if (reduced || !sectionRef.current || !truckRef.current) return;
 
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top bottom",
-          end: "bottom top",
-          scrub: true,
-        },
-      });
-
-      tl.fromTo(
+      gsap.fromTo(
         truckRef.current,
-        { x: "-110%" },
-        { x: "110vw", ease: "none" },
+        { xPercent: -110, x: 0 },
+        {
+          xPercent: 0,
+          x: () => window.innerWidth * 1.1,
+          ease: "none",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: true,
+            invalidateOnRefresh: true,
+          },
+        },
       );
 
       if (window.matchMedia("(pointer: fine)").matches) {
@@ -51,9 +53,19 @@ export function TruckDriveBy() {
     <section
       ref={sectionRef}
       id="preprava"
-      className="relative h-[160vh] overflow-hidden bg-gradient-to-b from-[#1a120e] via-[#22180f] to-[#0a0a0a] md:h-[180vh]"
+      className={
+        reduced
+          ? "relative min-h-svh overflow-hidden bg-gradient-to-b from-[#1a120e] via-[#22180f] to-[#0a0a0a]"
+          : "relative h-[160vh] overflow-hidden bg-gradient-to-b from-[#1a120e] via-[#22180f] to-[#0a0a0a] md:h-[180vh]"
+      }
     >
-      <div className="sticky top-0 flex h-svh flex-col justify-center">
+      <div
+        className={
+          reduced
+            ? "flex min-h-svh flex-col justify-center py-12"
+            : "sticky top-0 flex h-svh flex-col justify-center"
+        }
+      >
         <p className="mx-auto mb-8 max-w-3xl px-4 text-center font-display text-2xl uppercase text-white md:text-4xl">
           {site.truckCopy}
         </p>
@@ -68,14 +80,19 @@ export function TruckDriveBy() {
           />
           <div
             ref={truckRef}
-            className={`absolute bottom-[16%] left-0 w-[120vw] md:w-[60vw] ${
-              reduced ? "left-1/2 w-[90vw] -translate-x-1/2 md:w-[55vw]" : ""
-            }`}
+            className={
+              reduced
+                ? "absolute bottom-[16%] left-1/2 w-[90vw] -translate-x-1/2 md:w-[55vw]"
+                : "absolute bottom-[16%] left-0 w-[120vw] md:w-[60vw]"
+            }
           >
             <AssetOrPlaceholder
               src="/truck/truck.webp"
               alt="MAN TGL s minibagrem na plošině, směr jízdy doprava"
               className="h-auto w-full drop-shadow-[0_20px_40px_rgba(0,0,0,0.55)]"
+              width={2000}
+              height={1049}
+              loading="lazy"
             />
             {!reduced ? (
               <span

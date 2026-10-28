@@ -12,10 +12,35 @@ import {
 
 const initial: InquiryState = { ok: false, message: "" };
 
+const fieldLabels: Record<string, string> = {
+  place: "Místo",
+  name: "Jméno",
+  phone: "Telefon",
+  email: "E-mail",
+  type: "Typ poptávky",
+  consent: "Souhlas",
+};
+
+async function safeSubmitInquiry(
+  prev: InquiryState,
+  formData: FormData,
+): Promise<InquiryState> {
+  try {
+    return await submitInquiry(prev, formData);
+  } catch {
+    return {
+      ok: false,
+      message:
+        "Odeslání se nepodařilo. Zkuste to znovu, použijte mailto níže nebo nám zavolejte.",
+    };
+  }
+}
+
 export function Contact() {
-  const [state, action, pending] = useActionState(submitInquiry, initial);
+  const [state, action, pending] = useActionState(safeSubmitInquiry, initial);
   const [startedAt] = useState(() => String(Date.now()));
   const phoneHref = unwrap(site.phoneHref);
+  const mailtoFallback = `mailto:${unwrap(site.email)}`;
 
   useEffect(() => {
     if (state.ok) track("inquiry_submit", { ok: "true" });
@@ -77,7 +102,6 @@ export function Contact() {
 
         <form action={action} className="space-y-4 rounded-xl border border-white/10 bg-white/5 p-6">
           <input type="hidden" name="startedAt" value={startedAt} />
-          {/* honeypot */}
           <input
             type="text"
             name="website"
@@ -107,10 +131,11 @@ export function Contact() {
           </label>
 
           <label className="block text-sm">
-            Místo (obec)
+            Místo (obec)*
             <input
               name="place"
               required
+              autoComplete="address-level2"
               className="mt-1 w-full rounded border border-white/20 bg-black/40 px-3 py-2"
             />
           </label>
@@ -125,10 +150,11 @@ export function Contact() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="block text-sm">
-              Jméno
+              Jméno*
               <input
                 name="name"
                 required
+                autoComplete="name"
                 className="mt-1 w-full rounded border border-white/20 bg-black/40 px-3 py-2"
               />
             </label>
@@ -138,6 +164,10 @@ export function Contact() {
                 name="phone"
                 required
                 type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                pattern="[\d\s+()-]{9,}"
+                title="Zadejte platné telefonní číslo (min. 9 číslic)"
                 className="mt-1 w-full rounded border border-white/20 bg-black/40 px-3 py-2"
               />
             </label>
@@ -148,6 +178,7 @@ export function Contact() {
             <input
               name="email"
               type="email"
+              autoComplete="email"
               className="mt-1 w-full rounded border border-white/20 bg-black/40 px-3 py-2"
             />
           </label>
@@ -161,11 +192,6 @@ export function Contact() {
             />
           </label>
 
-          <label className="block text-sm text-white/50">
-            Foto z místa (brzy)
-            <input type="file" disabled className="mt-1 block w-full text-sm" />
-          </label>
-
           <label className="flex items-start gap-2 text-sm text-white/80">
             <input type="checkbox" name="consent" required className="mt-1" />
             <span>
@@ -176,11 +202,11 @@ export function Contact() {
               >
                 zpracováním osobních údajů
               </a>
-              .
+              *
             </span>
           </label>
 
-          <Button type="submit" disabled={pending} className="w-full">
+          <Button type="submit" variant="primary" disabled={pending} className="w-full">
             {pending ? "Odesílám…" : "Odeslat poptávku"}
           </Button>
 
@@ -208,12 +234,22 @@ export function Contact() {
                 </a>
               </div>
             ) : null}
+            {!state.ok && state.message.includes("nepodařilo") ? (
+              <div className="mt-3 flex flex-wrap gap-3">
+                <a href={mailtoFallback} className="underline underline-offset-2">
+                  Napsat e-mailem
+                </a>
+                <a href={phoneHref} className="underline underline-offset-2">
+                  Raději zavolat
+                </a>
+              </div>
+            ) : null}
             {state.fieldErrors ? (
               <ul className="mt-2 list-disc pl-5 text-brand-red">
                 {Object.entries(state.fieldErrors).map(([k, errs]) =>
                   errs?.map((e) => (
                     <li key={`${k}-${e}`}>
-                      {k}: {e}
+                      {fieldLabels[k] ?? k}: {e}
                     </li>
                   )),
                 )}

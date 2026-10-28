@@ -39,7 +39,7 @@ export function Footer() {
               Zásady zpracování osobních údajů
             </Link>
           </p>
-          <p className="mt-6 text-white/45">
+          <p className="mt-6 text-white/60">
             © {year} <Placeholder value={site.name} />
           </p>
         </div>

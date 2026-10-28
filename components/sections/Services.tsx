@@ -37,8 +37,12 @@ export function Services() {
       id="sluzby"
       desktop="/textures/soil-cross-section.webp"
       mobile="/textures/soil-cross-section-mobile.webp"
-      className="py-20 md:py-28"
+      className="relative py-20 md:py-28"
     >
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 z-10 h-16 bg-gradient-to-b from-[#0a0a0a] to-transparent md:h-24"
+        aria-hidden
+      />
       <div className="mx-auto max-w-6xl px-4 md:px-6">
         <div className="hazard-stripe mb-8 max-w-xs" />
         <h2 className="font-display text-4xl uppercase md:text-6xl">Služby</h2>

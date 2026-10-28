@@ -34,6 +34,7 @@ async function loadManifest(url: string): Promise<Manifest | null> {
   }
 }
 
+/** Horizontal focus aligned with hero video (~40% from left). */
 function drawCover(
   ctx: CanvasRenderingContext2D,
   img: CanvasImageSource,
@@ -41,12 +42,14 @@ function drawCover(
   ch: number,
   iw: number,
   ih: number,
+  focusX = 0.4,
+  focusY = 0.5,
 ) {
   const scale = Math.max(cw / iw, ch / ih);
   const dw = iw * scale;
   const dh = ih * scale;
-  const dx = (cw - dw) / 2;
-  const dy = (ch - dh) / 2;
+  const dx = focusX * (cw - dw);
+  const dy = focusY * (ch - dh);
   ctx.clearRect(0, 0, cw, ch);
   ctx.drawImage(img, dx, dy, dw, dh);
 }
@@ -112,6 +115,16 @@ export function ScrollSequence() {
       }
     }
 
+    const scheduleIdle = (fn: () => void) => {
+      if ("requestIdleCallback" in window) {
+        (window as Window & { requestIdleCallback: (cb: () => void) => number }).requestIdleCallback(
+          fn,
+        );
+      } else {
+        setTimeout(fn, 50);
+      }
+    };
+
     async function setup() {
       const [digM, underM] = await Promise.all([
         loadManifest(`${digBase}/manifest.json`),
@@ -127,7 +140,6 @@ export function ScrollSequence() {
       for (let i = 0; i < digM.count; i++) {
         digPaths.push(framePath(digBase, digM.firstIndex + i, digM.pattern));
       }
-      // skip underground first frame (duplicate of dig last)
       const underPaths: string[] = [];
       for (let i = 1; i < underM.count; i++) {
         underPaths.push(framePath(underBase, underM.firstIndex + i, underM.pattern));
@@ -176,54 +188,13 @@ export function ScrollSequence() {
         lastDrawn = index;
       };
 
-      const scheduleIdle = (fn: () => void) => {
-        if ("requestIdleCallback" in window) {
-          (window as Window & { requestIdleCallback: (cb: () => void) => number }).requestIdleCallback(fn);
-        } else {
-          setTimeout(fn, 50);
-        }
-      };
-
       const loadAt = async (i: number) => {
         if (cancelled || frames[i]) return;
         const path = paths[i];
         if (!path) return;
         frames[i] = await loadImage(path);
-        if (i === lastDrawn || lastDrawn < 0) paint(Math.max(0, lastDrawn), true);
+        paint(lastDrawn >= 0 ? lastDrawn : 0, true);
       };
-
-      // progressive: first ~10 dig, then every 4th, then rest
-      const preloadFirst = Math.min(10, digPaths.length);
-      await Promise.all(
-        Array.from({ length: preloadFirst }, (_, i) => loadAt(i)),
-      );
-      if (cancelled) return;
-      paint(0, true);
-
-      const everyFourth: number[] = [];
-      for (let i = preloadFirst; i < paths.length; i += 4) everyFourth.push(i);
-      await Promise.all(everyFourth.map((i) => loadAt(i)));
-
-      const fillRest = async () => {
-        for (let i = 0; i < paths.length; i++) {
-          if (cancelled) return;
-          if (!frames[i]) await loadAt(i);
-          if (i % 8 === 0) {
-            await new Promise((r) => scheduleIdle(() => r(undefined)));
-          }
-        }
-      };
-
-      const io = new IntersectionObserver(
-        (entries) => {
-          if (entries.some((e) => e.isIntersecting)) {
-            void fillRest();
-            io.disconnect();
-          }
-        },
-        { rootMargin: "200%" },
-      );
-      io.observe(section);
 
       resize();
       window.addEventListener("resize", resize);
@@ -236,6 +207,7 @@ export function ScrollSequence() {
         end: `+=${pinDuration}`,
         pin: true,
         scrub: 0.5,
+        refreshPriority: 1,
         onUpdate: (self) => {
           const progress = self.progress;
           const idx = Math.min(
@@ -249,6 +221,46 @@ export function ScrollSequence() {
           setActiveText(textIdx >= 0 ? textIdx : site.scrollTexts.length - 1);
         },
       });
+      ScrollTrigger.refresh();
+
+      const preloadFirst = Math.min(10, digPaths.length);
+      void loadAt(0);
+      void Promise.all(
+        Array.from({ length: preloadFirst }, (_, i) => loadAt(i)),
+      ).then(() => {
+        if (!cancelled) {
+          paint(0, true);
+          ScrollTrigger.refresh();
+        }
+      });
+
+      const everyFourth: number[] = [];
+      for (let i = preloadFirst; i < paths.length; i += 4) everyFourth.push(i);
+      void Promise.all(everyFourth.map((i) => loadAt(i))).then(() => {
+        if (!cancelled) ScrollTrigger.refresh();
+      });
+
+      const fillRest = async () => {
+        for (let i = 0; i < paths.length; i++) {
+          if (cancelled) return;
+          if (!frames[i]) await loadAt(i);
+          if (i % 8 === 0) {
+            await new Promise((r) => scheduleIdle(() => r(undefined)));
+          }
+        }
+        if (!cancelled) ScrollTrigger.refresh();
+      };
+
+      const io = new IntersectionObserver(
+        (entries) => {
+          if (entries.some((e) => e.isIntersecting)) {
+            void fillRest();
+            io.disconnect();
+          }
+        },
+        { rootMargin: "200%" },
+      );
+      io.observe(section);
 
       return () => {
         window.removeEventListener("resize", resize);
@@ -257,9 +269,16 @@ export function ScrollSequence() {
     }
 
     let cleanupInner: (() => void) | undefined;
-    void setup().then((c) => {
-      cleanupInner = c;
-    });
+    const startSetup = () => {
+      void setup().then((c) => {
+        cleanupInner = c;
+      });
+    };
+    if (document.readyState === "complete") {
+      scheduleIdle(startSetup);
+    } else {
+      window.addEventListener("load", () => scheduleIdle(startSetup), { once: true });
+    }
 
     return () => {
       cancelled = true;
@@ -331,6 +350,10 @@ export function ScrollSequence() {
           ))}
         </div>
       </div>
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-[12vh] bg-gradient-to-b from-transparent via-[#0a0a0a]/40 to-[#0a0a0a]"
+        aria-hidden
+      />
       <p className="sr-only">
         Animace ukazuje výkop minibagrem a průlet pod povrch půdy. Texty: výkopy a
         základy, terénní úpravy, stísněné prostory, hloubka výkopu.

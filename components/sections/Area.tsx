@@ -51,6 +51,8 @@ export function Area() {
               className="w-full rounded-xl border border-white/10 bg-black/40"
               width={800}
               height={800}
+              loading="lazy"
+              decoding="async"
             />
           </div>
 

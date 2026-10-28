@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import { site, unwrap } from "@/content/site";
 import { Placeholder } from "@/components/ui/Placeholder";
 
 export function Faq() {
-  const [open, setOpen] = useState<number | null>(0);
+  const baseId = useId();
+  const [open, setOpen] = useState<number | null>(null);
 
   return (
     <section id="faq" className="bg-[#0f0f0f] py-20 md:py-28">
@@ -16,13 +17,17 @@ export function Faq() {
         <div className="mt-10 divide-y divide-white/10 border-y border-white/10">
           {site.faq.map((item, i) => {
             const isOpen = open === i;
+            const panelId = `${baseId}-panel-${i}`;
+            const buttonId = `${baseId}-btn-${i}`;
             return (
               <div key={item.q}>
                 <h3>
                   <button
+                    id={buttonId}
                     type="button"
                     className="flex w-full items-center justify-between gap-4 py-5 text-left font-display text-lg uppercase tracking-wide"
                     aria-expanded={isOpen}
+                    aria-controls={panelId}
                     onClick={() => setOpen(isOpen ? null : i)}
                   >
                     {item.q}
@@ -32,17 +37,25 @@ export function Faq() {
                   </button>
                 </h3>
                 <div
-                  className={`overflow-hidden pb-5 text-white/75 transition-[max-height] ${
-                    isOpen ? "max-h-96" : "max-h-0 pb-0"
+                  id={panelId}
+                  role="region"
+                  aria-labelledby={buttonId}
+                  hidden={!isOpen}
+                  className={`grid transition-[grid-template-rows] duration-300 ease-out ${
+                    isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
                   }`}
                 >
-                  {typeof item.a === "string" ? (
-                    <p>{item.a}</p>
-                  ) : (
-                    <p>
-                      <Placeholder value={item.a} />
-                    </p>
-                  )}
+                  <div className="overflow-hidden">
+                    <div className={`text-white/75 ${isOpen ? "pb-5" : "pb-0"}`}>
+                      {typeof item.a === "string" ? (
+                        <p>{item.a}</p>
+                      ) : (
+                        <p>
+                          <Placeholder value={item.a} />
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             );

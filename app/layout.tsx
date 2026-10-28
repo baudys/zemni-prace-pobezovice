@@ -21,25 +21,39 @@ const body = Inter({
 
 const isProd = process.env.VERCEL_ENV === "production";
 const domain = unwrap(site.domain);
+const previewHost = process.env.VERCEL_URL
+  ? `https://${process.env.VERCEL_URL}`
+  : "http://localhost:3000";
+const metadataBase = new URL(isProd ? `https://${domain}` : previewHost);
 
 export const metadata: Metadata = {
-  metadataBase: new URL(`https://${domain}`),
+  metadataBase,
   title: site.meta.title,
   description: site.meta.description,
-  alternates: {
-    canonical: `https://${domain}`,
-  },
-  robots: isProd
-    ? { index: true, follow: true }
-    : { index: false, follow: false },
-  openGraph: {
-    title: site.meta.title,
-    description: site.meta.description,
-    locale: "cs_CZ",
-    type: "website",
-    url: `https://${domain}`,
-    images: [{ url: "/hero/hero-poster.webp", width: 1920, height: 1080 }],
-  },
+  ...(isProd
+    ? {
+        alternates: {
+          canonical: `https://${domain}`,
+        },
+        openGraph: {
+          title: site.meta.title,
+          description: site.meta.description,
+          locale: "cs_CZ",
+          type: "website",
+          url: `https://${domain}`,
+          images: [{ url: "/hero/hero-poster.webp", width: 1920, height: 1080 }],
+        },
+        robots: { index: true, follow: true },
+      }
+    : {
+        robots: { index: false, follow: false },
+        openGraph: {
+          title: site.meta.title,
+          description: site.meta.description,
+          locale: "cs_CZ",
+          type: "website",
+        },
+      }),
 };
 
 if (process.env.NODE_ENV === "production") {

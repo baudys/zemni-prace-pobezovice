@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type CSSProperties } from "react";
+import { useState, type CSSProperties, type ImgHTMLAttributes } from "react";
 
 type Props = {
   src: string;
@@ -8,6 +8,9 @@ type Props = {
   className?: string;
   style?: CSSProperties;
   asBackground?: boolean;
+  width?: number;
+  height?: number;
+  loading?: ImgHTMLAttributes<HTMLImageElement>["loading"];
 };
 
 export function AssetOrPlaceholder({
@@ -16,6 +19,9 @@ export function AssetOrPlaceholder({
   className = "",
   style,
   asBackground,
+  width,
+  height,
+  loading = "lazy",
 }: Props) {
   const [missing, setMissing] = useState(false);
 
@@ -39,6 +45,10 @@ export function AssetOrPlaceholder({
         src={src}
         alt=""
         aria-hidden
+        width={width}
+        height={height}
+        loading={loading}
+        decoding="async"
         className={`pointer-events-none absolute inset-0 h-full w-full object-cover ${className}`}
         style={style}
         onError={() => setMissing(true)}
@@ -51,6 +61,10 @@ export function AssetOrPlaceholder({
     <img
       src={src}
       alt={alt}
+      width={width}
+      height={height}
+      loading={loading}
+      decoding="async"
       className={className}
       style={style}
       onError={() => setMissing(true)}

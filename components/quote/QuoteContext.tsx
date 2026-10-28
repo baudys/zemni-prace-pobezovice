@@ -77,7 +77,7 @@ export function buildEstimate(input: QuoteInput): QuoteEstimate {
   if (input.container) {
     lines.push({
       id: "container",
-      label: "Přistavení kontejneru 4,5 m",
+      label: "Přistavení kontejneru 4,5 m (~5 m³)",
       detail: "od · dle vzdálenosti",
       amount: CONTAINER_FROM,
     });

@@ -1,21 +1,6 @@
-"use client";
-
-import dynamic from "next/dynamic";
 import { site } from "@/content/site";
+import { AreaMap } from "@/components/sections/AreaMap";
 import { Section, SectionHeader } from "@/components/ui/Section";
-
-const AreaMap = dynamic(
-  () => import("@/components/sections/AreaMap").then((m) => m.AreaMap),
-  {
-    ssr: false,
-    loading: () => (
-      <div
-        className="h-[min(72vw,420px)] w-full animate-pulse border border-line bg-deep md:h-[480px]"
-        aria-hidden
-      />
-    ),
-  },
-);
 
 export function Area() {
   return (

@@ -99,7 +99,9 @@ export function Fleet() {
           <div className="relative overflow-hidden border border-line">
             <AssetOrPlaceholder
               src={bagr.image}
-              alt={bagr.title}
+              alt={bagr.imageAlt}
+              width={1024}
+              height={768}
               className="aspect-[4/3] h-auto w-full object-cover"
               loading="lazy"
             />
@@ -111,7 +113,7 @@ export function Fleet() {
           </div>
 
           <div>
-            <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/40">
+            <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/60">
               Minibagr s obsluhou
             </p>
             <h3 className="mt-3 font-display text-4xl uppercase leading-[1.08] md:text-5xl">
@@ -123,7 +125,7 @@ export function Fleet() {
             <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-line pt-6">
               {bagr.specs.map((spec) => (
                 <div key={spec.label}>
-                  <dt className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/40">
+                  <dt className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/60">
                     {spec.label}
                   </dt>
                   <dd className="mt-1">
@@ -153,7 +155,9 @@ export function Fleet() {
               <div className="relative aspect-[4/3] w-36 shrink-0 bg-void sm:w-40">
                 <AssetOrPlaceholder
                   src={item.image}
-                  alt=""
+                  alt={item.imageAlt}
+                  width={1024}
+                  height={768}
                   className="absolute inset-0 h-full w-full object-cover"
                   loading="lazy"
                 />
@@ -175,7 +179,7 @@ export function Fleet() {
                 <p className="mt-2 text-sm leading-relaxed text-white/55">
                   {item.blurb}
                 </p>
-                <p className="mt-3 font-mono text-[11px] text-white/40">
+                <p className="mt-3 font-mono text-[11px] text-white/60">
                   {item.specs
                     .slice(0, 2)
                     .map((s) => {

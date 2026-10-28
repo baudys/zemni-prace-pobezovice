@@ -633,11 +633,11 @@ export function ScrollSequence() {
                 style={{ transform: "translate3d(-50%,0.8rem,0)" }}
                 aria-hidden="true"
               >
-                <h2 className="font-display text-[clamp(2.5rem,6.5vw,5.25rem)] uppercase leading-[1.02] tracking-tight text-white [text-shadow:0_2px_28px_rgba(0,0,0,0.55)]">
+                <h2 className="px-1 font-display text-[clamp(1.75rem,6vw,5.25rem)] uppercase leading-[1.05] tracking-tight text-balance text-white [text-shadow:0_2px_28px_rgba(0,0,0,0.55)]">
                   {t.title}
                 </h2>
                 {"subtitle" in t && t.subtitle ? (
-                  <p className="mt-3 font-display text-[clamp(1.15rem,2.6vw,1.85rem)] uppercase tracking-wide text-white/70">
+                  <p className="mt-3 px-1 font-display text-[clamp(1rem,2.4vw,1.85rem)] uppercase tracking-wide text-balance text-white/70">
                     <span className="text-komatsu-yellow">
                       {unwrap(t.subtitle)}
                     </span>
@@ -652,7 +652,7 @@ export function ScrollSequence() {
         </div>
 
         <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 z-[15] h-[12vh] bg-gradient-to-b from-transparent via-[#0a0a0a]/40 to-[#0a0a0a]"
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-[15] h-[12vh] bg-gradient-to-b from-transparent via-panel/50 to-panel"
           aria-hidden
         />
         <p className="sr-only">

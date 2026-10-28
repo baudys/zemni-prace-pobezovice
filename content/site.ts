@@ -110,17 +110,18 @@ export const site = {
     {
       id: "sut",
       title: "Odvoz suti a kontejner",
-      text: "Přistavíme plato nebo suťový kontejner 4,5 m a odvezeme materiál na skládku.",
-      bullets: ["Kontejner ~5 m³", "Odvoz suti a zeminy", "Likvidace dle druhu"],
+      text: "Přistavíme plato nebo suťový kontejner 4,5 m (~5 m³) a odvezeme materiál na skládku.",
+      bullets: ["Kontejner 4,5 m (~5 m³)", "Odvoz suti a zeminy", "Likvidace dle druhu"],
     },
   ],
   // Interní poznámky (nerenderovat na webu): studio stills Dreamina (28. 10. 2026);
-  // MAN – ověřit u Zbyňka současné naložení; kontejnery – ověřit objem; hloubka výkopu u stroje.
+  // MAN – ověřit u Zbyňka současné naložení; kontejnery – délka 4,5 m / objem ~5 m³ dle BRIEF (ověřit u provozovatele).
   fleet: [
     {
       id: "bagr",
       title: "Komatsu PC38MR-5",
       image: "/photos/pc38mr-studio.webp",
+      imageAlt: "Minibagr Komatsu PC38MR-5 ve studiu",
       specs: [
         { label: "Provozní hmotnost", value: 3.8, unit: "t", decimals: 1 },
         { label: "Šířka", value: 1.74, unit: "m", decimals: 2 },
@@ -133,6 +134,7 @@ export const site = {
       id: "man",
       title: "MAN TGL 12.220 + MULTITEC",
       image: "/photos/man-tgl-studio.webp",
+      imageAlt: "Nákladní auto MAN TGL s plošinou a minibagrem",
       specs: [
         { label: "Celková hmotnost", value: 12, unit: "t", decimals: 0 },
         { label: "Výkon", value: 220, unit: "k", decimals: 0 },
@@ -144,13 +146,15 @@ export const site = {
       id: "kontejnery",
       title: "Kontejnery 4,5 m",
       image: "/photos/kontejnery-studio.webp",
+      imageAlt: "Kontejnery na suť – plato a suťový",
       specs: [
         { label: "Počet", value: 2, unit: "ks", decimals: 0 },
-        { label: "Objem", value: 5, unit: "m³", decimals: 0 },
+        { label: "Délka", value: 4.5, unit: "m", decimals: 1 },
+        { label: "Objem", value: "~5 m³", unit: "" },
         { label: "Typy", value: "plato + suťový", unit: "" },
         { label: "Max. náklad", value: ex("[t – doplnit]"), unit: "" },
       ],
-      blurb: "Přistavení a odvoz na místě – suť i zemina bez hledání jiné firmy.",
+      blurb: "Délka 4,5 m, objem cca 5 m³ – plato i suťový. Přistavení a odvoz na místě.",
     },
   ],
   pricing: [
@@ -158,30 +162,34 @@ export const site = {
       id: "bagr-hodina",
       title: "Minibagr s obsluhou",
       amountExVat: 950,
-      unit: "Kč/h",
+      unit: "/h",
       note: "stroj + strojník + palivo",
+      example: true as const,
     },
     {
       id: "minimum",
       title: "Minimální zakázka",
       amountExVat: 3800,
-      unit: "Kč",
+      unit: "",
       badge: "4 h",
+      example: true as const,
     },
     {
       id: "doprava",
       title: "Doprava",
       amountExVat: 35,
-      unit: "Kč/km",
+      unit: "/km",
       note: "včetně naložení; km tam i zpět",
+      example: true as const,
     },
     {
       id: "kontejner",
-      title: "Přistavení kontejneru 4,5 m",
+      title: "Přistavení kontejneru 4,5 m (~5 m³)",
       amountExVat: 1900,
-      unit: "Kč",
+      unit: "",
       from: true,
       note: "plato / suťový, dle vzdálenosti",
+      example: true as const,
     },
     {
       id: "sut-odvoz",
@@ -345,7 +353,8 @@ export function withVat(amountExVat: number, vatRate = site.vatRate): number {
 
 export function formatCzk(amount: number): string {
   return new Intl.NumberFormat("cs-CZ", {
-    minimumFractionDigits: Number.isInteger(amount) ? 0 : 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
+    style: "currency",
+    currency: "CZK",
+    maximumFractionDigits: 0,
+  }).format(Math.round(amount));
 }

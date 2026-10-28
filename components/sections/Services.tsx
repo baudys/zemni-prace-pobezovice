@@ -32,7 +32,7 @@ export function Services() {
   }, [reduced]);
 
   return (
-    <Section id="sluzby" tone="panel">
+    <Section id="sluzby" tone="panel" className="!border-t-0">
       <SectionHeader title="Služby">
         Od výkopu po odvoz materiálu – minibagr s obsluhou a vlastní dopravou.
       </SectionHeader>

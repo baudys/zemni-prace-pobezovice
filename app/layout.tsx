@@ -3,8 +3,9 @@ import { Archivo_Black, IBM_Plex_Mono, Manrope } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import { SiteAtmosphere } from "@/components/motion/SiteAtmosphere";
-import { site, unwrap, collectExamplePaths } from "@/content/site";
+import { site, collectExamplePaths } from "@/content/site";
 import { faqPageJsonLd, localBusinessJsonLd } from "@/lib/jsonld";
+import { isProductionDeploy, siteOrigin } from "@/lib/site-url";
 import "./globals.css";
 
 const display = Archivo_Black({
@@ -27,41 +28,32 @@ const mono = IBM_Plex_Mono({
   display: "swap",
 });
 
-const isProd = process.env.VERCEL_ENV === "production";
-const domain = unwrap(site.domain);
-const previewHost = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : "http://localhost:3000";
-const metadataBase = new URL(isProd ? `https://${domain}` : previewHost);
+const isProd = isProductionDeploy();
+const origin = siteOrigin();
+const metadataBase = new URL(origin);
 
 export const metadata: Metadata = {
   metadataBase,
   title: site.meta.title,
   description: site.meta.description,
+  robots: isProd
+    ? { index: true, follow: true }
+    : { index: false, follow: false },
+  openGraph: {
+    title: site.meta.title,
+    description: site.meta.description,
+    locale: "cs_CZ",
+    type: "website",
+    url: origin,
+    images: [{ url: "/opengraph-image", width: 1200, height: 630 }],
+  },
   ...(isProd
     ? {
         alternates: {
-          canonical: `https://${domain}`,
+          canonical: origin,
         },
-        openGraph: {
-          title: site.meta.title,
-          description: site.meta.description,
-          locale: "cs_CZ",
-          type: "website",
-          url: `https://${domain}`,
-          images: [{ url: "/hero/hero-poster.webp", width: 1920, height: 1080 }],
-        },
-        robots: { index: true, follow: true },
       }
-    : {
-        robots: { index: false, follow: false },
-        openGraph: {
-          title: site.meta.title,
-          description: site.meta.description,
-          locale: "cs_CZ",
-          type: "website",
-        },
-      }),
+    : {}),
 };
 
 if (process.env.NODE_ENV === "production") {

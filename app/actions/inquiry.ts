@@ -2,12 +2,20 @@
 
 import { z } from "zod";
 
+const phonePattern = /^[0-9 +()\-]{9,}$/;
+
 const inquirySchema = z.object({
   type: z.enum(["vykop", "teren", "preprava", "sut", "jine"]),
   place: z.string().trim().min(2, "Zadejte obec / místo"),
   term: z.string().trim().optional(),
   name: z.string().trim().min(2, "Zadejte jméno"),
-  phone: z.string().trim().min(9, "Zadejte telefon"),
+  phone: z
+    .string()
+    .trim()
+    .regex(phonePattern, "Zadejte platné telefonní číslo (min. 9 znaků)")
+    .refine((v) => v.replace(/\D/g, "").length >= 9, {
+      message: "Telefon musí obsahovat alespoň 9 číslic",
+    }),
   email: z.union([z.string().trim().email("Zadejte platný e-mail"), z.literal("")]),
   note: z.string().trim().optional(),
   consent: z.literal("on"),
@@ -15,25 +23,52 @@ const inquirySchema = z.object({
   startedAt: z.string(),
 });
 
+export type InquiryValues = {
+  type: string;
+  place: string;
+  term: string;
+  name: string;
+  phone: string;
+  email: string;
+  note: string;
+  consent: boolean;
+};
+
 export type InquiryState = {
   ok: boolean;
   message: string;
   mailto?: string;
   fieldErrors?: Record<string, string[]>;
+  /** Zachovaná pole po neúspěchu (form reset po server action). */
+  values?: InquiryValues;
 };
 
-export async function submitInquiry(
-  _prev: InquiryState,
-  formData: FormData,
-): Promise<InquiryState> {
-  const raw = {
-    type: String(formData.get("type") ?? ""),
+function valuesFromForm(formData: FormData): InquiryValues {
+  return {
+    type: String(formData.get("type") ?? "vykop"),
     place: String(formData.get("place") ?? ""),
     term: String(formData.get("term") ?? ""),
     name: String(formData.get("name") ?? ""),
     phone: String(formData.get("phone") ?? ""),
     email: String(formData.get("email") ?? ""),
     note: String(formData.get("note") ?? ""),
+    consent: formData.get("consent") === "on",
+  };
+}
+
+export async function submitInquiry(
+  _prev: InquiryState,
+  formData: FormData,
+): Promise<InquiryState> {
+  const values = valuesFromForm(formData);
+  const raw = {
+    type: values.type,
+    place: values.place,
+    term: values.term,
+    name: values.name,
+    phone: values.phone,
+    email: values.email,
+    note: values.note,
     consent: formData.get("consent"),
     website: String(formData.get("website") ?? ""),
     startedAt: String(formData.get("startedAt") ?? ""),
@@ -49,6 +84,7 @@ export async function submitInquiry(
     return {
       ok: false,
       message: "Zkuste formulář odeslat znovu za chvilku.",
+      values,
     };
   }
 
@@ -62,6 +98,7 @@ export async function submitInquiry(
       ok: false,
       message: "Zkontrolujte prosím vyplněná pole.",
       fieldErrors: parsed.error.flatten().fieldErrors as Record<string, string[]>,
+      values,
     };
   }
 

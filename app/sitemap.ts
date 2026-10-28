@@ -1,8 +1,13 @@
 import type { MetadataRoute } from "next";
-import { site, unwrap } from "@/content/site";
+import { isProductionDeploy, siteOrigin } from "@/lib/site-url";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const base = `https://${unwrap(site.domain)}`;
+  // Preview/dev — prázdný sitemap (spolu s robots disallow).
+  if (!isProductionDeploy()) {
+    return [];
+  }
+
+  const base = siteOrigin();
   return [
     {
       url: base,

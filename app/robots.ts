@@ -1,16 +1,14 @@
 import type { MetadataRoute } from "next";
-import { site, unwrap } from "@/content/site";
+import { isProductionDeploy, siteOrigin } from "@/lib/site-url";
 
 export default function robots(): MetadataRoute.Robots {
-  const isProd = process.env.VERCEL_ENV === "production";
-  const host = `https://${unwrap(site.domain)}`;
-
-  if (!isProd) {
+  if (!isProductionDeploy()) {
     return {
       rules: { userAgent: "*", disallow: "/" },
     };
   }
 
+  const host = siteOrigin();
   return {
     rules: { userAgent: "*", allow: "/" },
     sitemap: `${host}/sitemap.xml`,

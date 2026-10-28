@@ -21,23 +21,37 @@
     <circle cx="400" cy="400" r="300" stroke-opacity="0.95"/>
   </g>
   <path d="M40 120 L40 760 L280 760 L180 420 Z" fill="#000" fill-opacity="0.28"/>
-  <text x="70" y="700" fill="#888" font-size="14" font-family="sans-serif">Bavorsko</text>
-  <circle cx="400" cy="400" r="8" fill="#E1011B"/>
-  <circle cx="400" cy="400" r="16" fill="none" stroke="#E1011B" stroke-width="2"/>
-  <text x="420" y="406" fill="#fff" font-size="18" font-family="sans-serif" font-weight="700">Poběžovice</text>
-  <g fill="#F5B800" font-size="13" font-family="sans-serif">
-    <circle cx="485" cy="470" r="3"/><text x="493" y="474">Domažlice</text>
-    <circle cx="445" cy="350" r="3"/><text x="453" y="354">Hostouň</text>
-    <circle cx="520" cy="390" r="3"/><text x="528" y="394">Horšovský Týn</text>
-    <circle cx="310" cy="340" r="3"/><text x="220" y="344">Bělá n. R.</text>
-    <circle cx="510" cy="530" r="3"/><text x="518" y="534">Kdyně</text>
-    <circle cx="560" cy="420" r="3"/><text x="568" y="424">Holýšov</text>
-    <circle cx="390" cy="560" r="3"/><text x="300" y="564">Česká Kubice</text>
-    <circle cx="555" cy="300" r="3"/><text x="563" y="304">Staňkov</text>
-    <circle cx="280" cy="280" r="3"/><text x="210" y="284">Přimda</text>
-    <circle cx="545" cy="470" r="3"/><text x="553" y="474">Koloveč</text>
-    <circle cx="350" cy="250" r="3"/><text x="358" y="254">Bor</text>
+  <text x="70" y="700" fill="#888" font-size="14" font-family="system-ui,sans-serif">Bavorsko</text>
+
+  <!-- Secondary towns: dots only (tooltips via title) -->
+  <g fill="#F5B800">
+    <circle cx="445" cy="350" r="3.5"><title>Hostouň</title></circle>
+    <circle cx="310" cy="340" r="3.5"><title>Bělá nad Radbuzou</title></circle>
+    <circle cx="510" cy="530" r="3.5"><title>Kdyně</title></circle>
+    <circle cx="560" cy="420" r="3.5"><title>Holýšov</title></circle>
+    <circle cx="390" cy="560" r="3.5"><title>Česká Kubice</title></circle>
+    <circle cx="555" cy="300" r="3.5"><title>Staňkov</title></circle>
+    <circle cx="280" cy="280" r="3.5"><title>Přimda</title></circle>
+    <circle cx="545" cy="470" r="3.5"><title>Koloveč</title></circle>
+    <circle cx="350" cy="250" r="3.5"><title>Bor</title></circle>
   </g>
-  <text x="400" y="740" text-anchor="middle" fill="#C8A877" font-size="14" font-family="sans-serif">okruh 50 km · 10 / 25 / 50</text>
-  <text x="400" y="770" text-anchor="middle" fill="#666" font-size="11" font-family="sans-serif">© OpenStreetMap contributors · stylizovaná mapa</text>
+
+  <!-- Primary labels: 5 hlavních míst, rozmístěné bez překryvu -->
+  <g font-family="system-ui,sans-serif">
+    <circle cx="400" cy="400" r="8" fill="#E1011B"/>
+    <circle cx="400" cy="400" r="16" fill="none" stroke="#E1011B" stroke-width="2"/>
+    <text x="400" y="372" text-anchor="middle" fill="#fff" font-size="17" font-weight="700">Poběžovice</text>
+
+    <circle cx="485" cy="470" r="4" fill="#F5B800"/>
+    <text x="498" y="488" fill="#F5B800" font-size="14" font-weight="600">Domažlice</text>
+
+    <circle cx="520" cy="355" r="4" fill="#F5B800"/>
+    <text x="532" y="348" fill="#F5B800" font-size="14" font-weight="600">Horšovský Týn</text>
+
+    <circle cx="250" cy="230" r="4" fill="#F5B800"/>
+    <text x="262" y="224" fill="#F5B800" font-size="14" font-weight="600">Tachov</text>
+
+    <circle cx="620" cy="560" r="4" fill="#F5B800"/>
+    <text x="545" y="590" fill="#F5B800" font-size="14" font-weight="600">Klatovy</text>
+  </g>
 </svg>

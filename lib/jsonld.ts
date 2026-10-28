@@ -1,17 +1,20 @@
 import { site, unwrap } from "@/content/site";
+import { siteOrigin } from "@/lib/site-url";
 
 export function localBusinessJsonLd() {
+  const origin = siteOrigin();
   return {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     name: unwrap(site.name),
     legalName: unwrap(site.operator),
-    url: `https://${unwrap(site.domain)}`,
+    url: origin,
     telephone: unwrap(site.phone),
     email: unwrap(site.email),
-    image: `https://${unwrap(site.domain)}/hero/hero-poster.webp`,
+    image: `${origin}/opengraph-image`,
     address: {
       "@type": "PostalAddress",
+      streetAddress: "Žižkova 188",
       addressLocality: "Poběžovice",
       postalCode: "345 22",
       addressCountry: "CZ",

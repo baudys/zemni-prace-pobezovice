@@ -1,6 +1,13 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useState } from "react";
+import {
+  startTransition,
+  useActionState,
+  useEffect,
+  useMemo,
+  useState,
+  type FormEvent,
+} from "react";
 import { track } from "@vercel/analytics";
 import { formatCzk, site, unwrap } from "@/content/site";
 import { Placeholder } from "@/components/ui/Placeholder";
@@ -10,10 +17,14 @@ import { useQuote } from "@/components/quote/QuoteContext";
 import {
   submitInquiry,
   type InquiryState,
+  type InquiryValues,
 } from "@/app/actions/inquiry";
 
 const fieldClass =
   "mt-2 w-full border border-line bg-transparent px-3 py-3 text-white outline-none transition focus:border-komatsu-yellow [color-scheme:dark]";
+
+/** HTML pattern — pomlčka escapovaná; stejná logika jako zod na serveru. */
+const PHONE_PATTERN = "[0-9 +()\\-]{9,}";
 
 const initial: InquiryState = { ok: false, message: "" };
 
@@ -37,6 +48,16 @@ async function safeSubmitInquiry(
       ok: false,
       message:
         "Odeslání se nepodařilo. Zkuste to znovu, použijte mailto níže nebo nám zavolejte.",
+      values: {
+        type: String(formData.get("type") ?? "vykop"),
+        place: String(formData.get("place") ?? ""),
+        term: String(formData.get("term") ?? ""),
+        name: String(formData.get("name") ?? ""),
+        phone: String(formData.get("phone") ?? ""),
+        email: String(formData.get("email") ?? ""),
+        note: String(formData.get("note") ?? ""),
+        consent: formData.get("consent") === "on",
+      },
     };
   }
 }
@@ -45,27 +66,45 @@ export function Contact() {
   const [state, action, pending] = useActionState(safeSubmitInquiry, initial);
   const [startedAt] = useState(() => String(Date.now()));
   const [note, setNote] = useState("");
+  const [formKey, setFormKey] = useState(0);
   const { applied, clearApplied } = useQuote();
   const phoneHref = unwrap(site.phoneHref);
   const mailtoFallback = `mailto:${unwrap(site.email)}`;
+  const values: InquiryValues | undefined = state.values;
 
   useEffect(() => {
-    if (state.ok) track("inquiry_submit", { ok: "true" });
+    if (!state.ok) return;
+    track("inquiry_submit", { ok: "true" });
+    // Reset až po úspěchu (ne při chybě sítě / validace).
+    queueMicrotask(() => {
+      setNote("");
+      setFormKey((k) => k + 1);
+    });
   }, [state.ok]);
 
   useEffect(() => {
     if (!applied) return;
-    setNote((prev) => {
-      const withoutOldQuote = prev
-        .replace(/\n?\n?Odhad z konfigurátoru[\s\S]*$/m, "")
-        .trim();
-      return withoutOldQuote
-        ? `${withoutOldQuote}\n\n${applied.noteText}`
-        : applied.noteText;
+    queueMicrotask(() => {
+      setNote((prev) => {
+        const withoutOldQuote = prev
+          .replace(/\n?\n?Odhad z konfigurátoru[\s\S]*$/m, "")
+          .trim();
+        return withoutOldQuote
+          ? `${withoutOldQuote}\n\n${applied.noteText}`
+          : applied.noteText;
+      });
     });
   }, [applied]);
 
   const claimPoints = useMemo(() => site.claim.points, []);
+
+  function onSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    startTransition(() => {
+      action(formData);
+    });
+  }
 
   return (
     <Section id="kontakt" tone="panel" className="!border-t-0">
@@ -163,7 +202,12 @@ export function Contact() {
           </Button>
         </div>
 
-        <form action={action} className="space-y-5 border border-line p-6 md:p-8">
+        <form
+          key={formKey}
+          onSubmit={onSubmit}
+          className="space-y-5 border border-line p-6 md:p-8"
+          noValidate={false}
+        >
           <input type="hidden" name="startedAt" value={startedAt} />
           <input
             type="text"
@@ -183,8 +227,7 @@ export function Contact() {
               name="type"
               required
               className={fieldClass}
-              defaultValue="vykop"
-              key={applied ? `type-${applied.totalEx}` : "type-default"}
+              defaultValue={values?.type ?? "vykop"}
             >
               {site.inquiryTypes.map((t) => (
                 <option key={t.value} value={t.value}>
@@ -201,18 +244,30 @@ export function Contact() {
               required
               autoComplete="address-level2"
               className={fieldClass}
+              defaultValue={values?.place ?? ""}
             />
           </label>
 
           <label className="block text-sm text-white/70">
             Termín (orientačně)
-            <input name="term" type="date" className={fieldClass} />
+            <input
+              name="term"
+              type="date"
+              className={fieldClass}
+              defaultValue={values?.term ?? ""}
+            />
           </label>
 
           <div className="grid gap-5 sm:grid-cols-2">
             <label className="block text-sm text-white/70">
               Jméno*
-              <input name="name" required autoComplete="name" className={fieldClass} />
+              <input
+                name="name"
+                required
+                autoComplete="name"
+                className={fieldClass}
+                defaultValue={values?.name ?? ""}
+              />
             </label>
             <label className="block text-sm text-white/70">
               Telefon*
@@ -222,16 +277,23 @@ export function Contact() {
                 type="tel"
                 inputMode="tel"
                 autoComplete="tel"
-                pattern="[\d\s+()-]{9,}"
+                pattern={PHONE_PATTERN}
                 title="Zadejte platné telefonní číslo (min. 9 číslic)"
                 className={fieldClass}
+                defaultValue={values?.phone ?? ""}
               />
             </label>
           </div>
 
           <label className="block text-sm text-white/70">
             E-mail
-            <input name="email" type="email" autoComplete="email" className={fieldClass} />
+            <input
+              name="email"
+              type="email"
+              autoComplete="email"
+              className={fieldClass}
+              defaultValue={values?.email ?? ""}
+            />
           </label>
 
           <label className="block text-sm text-white/70">
@@ -246,7 +308,13 @@ export function Contact() {
           </label>
 
           <label className="flex cursor-pointer items-start gap-2 text-sm text-white/70">
-            <input type="checkbox" name="consent" required className="mt-1 accent-brand-red" />
+            <input
+              type="checkbox"
+              name="consent"
+              required
+              className="mt-1 accent-brand-red"
+              defaultChecked={values?.consent ?? false}
+            />
             <span>
               Souhlasím se{" "}
               <a

@@ -7,6 +7,7 @@ import { landmarkForKm } from "@/content/map-towns";
 import { Section, SectionHeader } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { quoteRates, useQuote } from "@/components/quote/QuoteContext";
+import { showPlaceholders } from "@/lib/placeholders";
 
 const KM_MAX = 60;
 
@@ -16,6 +17,8 @@ export function Pricing() {
   const containerId = useId();
   const { draft, setDraft, estimate, applyToContact } = useQuote();
   const townHint = landmarkForKm(estimate.kmOneWay);
+  const ratesAreExample =
+    showPlaceholders() && site.pricing.some((p) => "example" in p && p.example);
 
   function continueToContact() {
     applyToContact();
@@ -26,6 +29,15 @@ export function Pricing() {
   return (
     <Section id="cenik" tone="deep">
       <SectionHeader title="Ceník">{site.pricingDisclaimer}</SectionHeader>
+      {ratesAreExample ? (
+        <p
+          className="placeholder-mark mt-4 inline-block font-mono text-[11px] uppercase tracking-[0.18em] text-komatsu-yellow"
+          title="UKÁZKOVÁ DATA – nahradit před spuštěním"
+          data-example="true"
+        >
+          UKÁZKOVÁ DATA – sazby ověřit u provozovatele
+        </p>
+      ) : null}
 
       <div className="mt-14 grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-16">
         <fieldset className="space-y-8 border-0 p-0">
@@ -54,7 +66,7 @@ export function Pricing() {
               className="mt-4 w-full accent-brand-red"
               aria-valuetext={`${estimate.hours} hodin`}
             />
-            <p className="mt-2 font-mono text-[11px] text-white/40">
+            <p className="mt-2 font-mono text-[11px] text-white/60">
               Minimum {quoteRates.minHours} h · {formatCzk(quoteRates.hourly)}/h
               bez DPH
             </p>
@@ -87,7 +99,7 @@ export function Pricing() {
                   : `${estimate.kmOneWay} kilometrů`
               }
             />
-            <p className="mt-2 font-mono text-[11px] text-white/40">
+            <p className="mt-2 font-mono text-[11px] text-white/60">
               Počítáme tam i zpět · {formatCzk(quoteRates.kmRate)}/km
               {townHint ? (
                 <>
@@ -109,7 +121,7 @@ export function Pricing() {
                   Příslušenství
                 </span>
                 <span className="mt-2 block font-display text-lg uppercase">
-                  Kontejner 4,5 m
+                  Kontejner 4,5&nbsp;m (~5&nbsp;m³)
                 </span>
                 <span className="mt-1 block text-sm text-white/55">
                   od {formatCzk(quoteRates.containerFrom)} · plato / suťový
@@ -148,7 +160,7 @@ export function Pricing() {
                 <div>
                   <p className="text-sm text-white/85">{line.label}</p>
                   {line.detail ? (
-                    <p className="mt-1 font-mono text-[11px] text-white/40">
+                    <p className="mt-1 font-mono text-[11px] text-white/60">
                       {line.detail}
                     </p>
                   ) : null}

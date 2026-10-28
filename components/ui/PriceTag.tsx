@@ -36,12 +36,16 @@ export function PriceTag({
           <>
             <p className="font-display text-3xl text-white md:text-4xl">
               {from ? "od " : ""}
-              {formatCzk(amountExVat)}{" "}
-              <span className="text-xl text-white/70">{unit}</span>
+              {formatCzk(amountExVat)}
+              {unit ? (
+                <span className="text-xl text-white/70">{unit}</span>
+              ) : null}
             </p>
             <p className="mt-1 text-sm text-white/60">
               {from ? "od " : ""}
-              {formatCzk(withVat(amountExVat))} {unit} s DPH
+              {formatCzk(withVat(amountExVat))}
+              {unit}
+              {" s DPH"}
             </p>
           </>
         )}

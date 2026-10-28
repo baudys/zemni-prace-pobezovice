@@ -1,108 +1,101 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { site } from "@/content/site";
 import { AssetOrPlaceholder } from "@/components/ui/AssetOrPlaceholder";
+import { Footer } from "@/components/sections/Footer";
 import { useReducedMotion } from "@/components/motion/useReducedMotion";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export function TruckDriveBy() {
-  const sectionRef = useRef<HTMLElement>(null);
+type Props = {
+  children: ReactNode;
+};
+
+/**
+ * Kontakt → MAN pás → footer.
+ * Bez sticky (nepřekrývá formulář). MAN přijede zleva a zastaví se
+ * před pravým okrajem během průchodu pásem.
+ */
+export function TruckDriveBy({ children }: Props) {
+  const driveRef = useRef<HTMLElement>(null);
   const truckRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
 
   useEffect(() => {
-    if (reduced || !sectionRef.current || !truckRef.current) return;
+    if (reduced || !driveRef.current || !truckRef.current) return;
+
+    const truck = truckRef.current;
+    const drive = driveRef.current;
 
     const ctx = gsap.context(() => {
+      const startX = () => -truck.offsetWidth * 1.08;
+      // Zastavit s rezervou před pravým okrajem (~10–12 % šířky viewportu).
+      const endX = () =>
+        Math.max(16, window.innerWidth - truck.offsetWidth - window.innerWidth * 0.1);
+
       gsap.fromTo(
-        truckRef.current,
-        { xPercent: -110, x: 0 },
+        truck,
+        { x: startX },
         {
-          xPercent: 0,
-          x: () => window.innerWidth * 1.1,
+          x: endX,
           ease: "none",
           scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top bottom",
+            trigger: drive,
+            // Start, až je pás v obraze; konec, až odjede nahoru — delší scrub.
+            start: "top 80%",
             end: "bottom top",
-            scrub: true,
+            scrub: 0.55,
             invalidateOnRefresh: true,
           },
         },
       );
+    }, drive);
 
-      if (window.matchMedia("(pointer: fine)").matches) {
-        gsap.to(truckRef.current, {
-          y: "+=2",
-          duration: 0.2,
-          yoyo: true,
-          repeat: -1,
-          ease: "sine.inOut",
-        });
-      }
-    }, sectionRef);
-
+    requestAnimationFrame(() => ScrollTrigger.refresh());
     return () => ctx.revert();
   }, [reduced]);
 
   return (
-    <section
-      ref={sectionRef}
-      id="preprava"
-      className={
-        reduced
-          ? "relative min-h-svh overflow-hidden bg-gradient-to-b from-[#1a120e] via-[#22180f] to-[#0a0a0a]"
-          : "relative h-[160vh] overflow-hidden bg-gradient-to-b from-[#1a120e] via-[#22180f] to-[#0a0a0a] md:h-[180vh]"
-      }
-    >
-      <div
-        className={
-          reduced
-            ? "flex min-h-svh flex-col justify-center py-12"
-            : "sticky top-0 flex h-svh flex-col justify-center"
-        }
+    <div className="relative bg-panel">
+      {children}
+      <section
+        ref={driveRef}
+        id="preprava"
+        className="relative overflow-hidden bg-panel"
+        aria-label="Vlastní doprava MAN TGL"
       >
-        <p className="mx-auto mb-8 max-w-3xl px-4 text-center font-display text-2xl uppercase text-white md:text-4xl">
-          {site.truckCopy}
-        </p>
-        <div className="relative h-[40vw] min-h-[180px] w-full overflow-hidden">
+        <div className="relative h-48 w-full md:h-60">
           <div
-            className="absolute inset-x-0 bottom-[18%] h-10 bg-[linear-gradient(90deg,#3a3a3a_0%,#555_50%,#3a3a3a_100%)]"
+            className="absolute inset-x-0 bottom-4 h-px bg-line md:bottom-5"
             aria-hidden
           />
           <div
-            className="absolute inset-x-0 bottom-[14%] h-2 bg-komatsu-yellow/40"
+            className="absolute inset-x-0 bottom-[0.85rem] h-0.5 bg-komatsu-yellow/45 md:bottom-[1.05rem]"
             aria-hidden
           />
+
           <div
             ref={truckRef}
             className={
               reduced
-                ? "absolute bottom-[16%] left-1/2 w-[90vw] -translate-x-1/2 md:w-[55vw]"
-                : "absolute bottom-[16%] left-0 w-[120vw] md:w-[60vw]"
+                ? "absolute bottom-4 left-1/2 w-[min(58vw,22rem)] -translate-x-1/2 md:bottom-5 md:w-[min(48vw,26rem)]"
+                : "absolute bottom-4 left-0 w-[min(58vw,22rem)] will-change-transform md:bottom-5 md:w-[min(48vw,26rem)]"
             }
           >
             <AssetOrPlaceholder
               src="/truck/truck.webp"
-              alt="MAN TGL s minibagrem na plošině, směr jízdy doprava"
-              className="h-auto w-full drop-shadow-[0_20px_40px_rgba(0,0,0,0.55)]"
+              alt="MAN TGL s minibagrem na plošině"
+              className="h-auto w-full select-none object-contain object-bottom"
               width={2000}
               height={1049}
               loading="lazy"
             />
-            {!reduced ? (
-              <span
-                className="pointer-events-none absolute bottom-[8%] left-[18%] h-3 w-16 rounded-full bg-sand/40 blur-sm"
-                aria-hidden
-              />
-            ) : null}
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+      <Footer />
+    </div>
   );
 }

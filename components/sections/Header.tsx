@@ -21,13 +21,13 @@ export function Header() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
+      className={`fixed inset-x-0 top-0 z-[100] border-b transition-[background-color,border-color,backdrop-filter] duration-300 ${
         scrolled || open
-          ? "border-b border-white/10 bg-ink/85 backdrop-blur-md"
-          : "bg-transparent"
+          ? "border-white/10 bg-void/90 backdrop-blur-md"
+          : "border-transparent bg-transparent backdrop-blur-none"
       }`}
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 md:px-6">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 md:px-8">
         <Link href="#hero" className="flex items-center gap-3" aria-label={unwrap(site.name)}>
           <Image
             src="/brand/gts-logo.svg"
@@ -71,14 +71,30 @@ export function Header() {
           </Button>
           <button
             type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded border border-white/20 lg:hidden"
+            className="inline-flex h-10 w-10 cursor-pointer items-center justify-center border border-line lg:hidden"
             aria-expanded={open}
             aria-controls="mobile-nav"
-            aria-label="Menu"
+            aria-label={open ? "Zavřít menu" : "Otevřít menu"}
             onClick={() => setOpen((v) => !v)}
           >
-            <span className="sr-only">Menu</span>
-            <span className="block h-0.5 w-5 bg-white" />
+            <span className="sr-only">{open ? "Zavřít" : "Menu"}</span>
+            <span className="relative block h-3.5 w-5" aria-hidden>
+              <span
+                className={`absolute left-0 top-0 block h-0.5 w-5 bg-white transition duration-200 ${
+                  open ? "translate-y-[6px] rotate-45" : ""
+                }`}
+              />
+              <span
+                className={`absolute left-0 top-[6px] block h-0.5 w-5 bg-white transition duration-200 ${
+                  open ? "opacity-0" : ""
+                }`}
+              />
+              <span
+                className={`absolute left-0 top-[12px] block h-0.5 w-5 bg-white transition duration-200 ${
+                  open ? "-translate-y-[6px] -rotate-45" : ""
+                }`}
+              />
+            </span>
           </button>
         </div>
       </div>

@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { Archivo_Black, Inter } from "next/font/google";
+import { Archivo_Black, IBM_Plex_Mono, Manrope } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { SmoothScroll } from "@/components/motion/SmoothScroll";
+import { SiteAtmosphere } from "@/components/motion/SiteAtmosphere";
 import { site, unwrap, collectExamplePaths } from "@/content/site";
 import { faqPageJsonLd, localBusinessJsonLd } from "@/lib/jsonld";
 import "./globals.css";
@@ -13,9 +14,16 @@ const display = Archivo_Black({
   display: "swap",
 });
 
-const body = Inter({
+const body = Manrope({
   subsets: ["latin", "latin-ext"],
   variable: "--font-body",
+  display: "swap",
+});
+
+const mono = IBM_Plex_Mono({
+  weight: ["400", "500"],
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-mono",
   display: "swap",
 });
 
@@ -73,27 +81,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="cs" className={`${display.variable} ${body.variable}`}>
+    <html lang="cs" className={`${display.variable} ${body.variable} ${mono.variable}`}>
       <head>
         <link
           rel="preload"
           as="image"
-          href="/hero/hero-poster.webp"
+          href="/seq/dig/0001.webp"
           fetchPriority="high"
           media="(min-width: 768px)"
         />
         <link
           rel="preload"
           as="image"
-          href="/hero/hero-poster-mobile.webp"
-          fetchPriority="high"
-          media="(max-width: 767px)"
-        />
-        <link rel="preload" as="image" href="/seq/dig/0001.webp" media="(min-width: 768px)" />
-        <link
-          rel="preload"
-          as="image"
           href="/seq/dig-mobile/0001.webp"
+          fetchPriority="high"
           media="(max-width: 767px)"
         />
         <script
@@ -110,6 +111,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-svh antialiased">
+        <SiteAtmosphere />
         <SmoothScroll>{children}</SmoothScroll>
         <Analytics />
       </body>

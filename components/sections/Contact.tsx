@@ -2,13 +2,18 @@
 
 import { useActionState, useEffect, useMemo, useState } from "react";
 import { track } from "@vercel/analytics";
-import { site, unwrap } from "@/content/site";
+import { formatCzk, site, unwrap } from "@/content/site";
 import { Placeholder } from "@/components/ui/Placeholder";
 import { Button } from "@/components/ui/Button";
+import { Section, SectionHeader } from "@/components/ui/Section";
+import { useQuote } from "@/components/quote/QuoteContext";
 import {
   submitInquiry,
   type InquiryState,
 } from "@/app/actions/inquiry";
+
+const fieldClass =
+  "mt-2 w-full border border-line bg-transparent px-3 py-3 text-white outline-none transition focus:border-komatsu-yellow [color-scheme:dark]";
 
 const initial: InquiryState = { ok: false, message: "" };
 
@@ -39,6 +44,8 @@ async function safeSubmitInquiry(
 export function Contact() {
   const [state, action, pending] = useActionState(safeSubmitInquiry, initial);
   const [startedAt] = useState(() => String(Date.now()));
+  const [note, setNote] = useState("");
+  const { applied, clearApplied } = useQuote();
   const phoneHref = unwrap(site.phoneHref);
   const mailtoFallback = `mailto:${unwrap(site.email)}`;
 
@@ -46,24 +53,70 @@ export function Contact() {
     if (state.ok) track("inquiry_submit", { ok: "true" });
   }, [state.ok]);
 
+  useEffect(() => {
+    if (!applied) return;
+    setNote((prev) => {
+      const withoutOldQuote = prev
+        .replace(/\n?\n?Odhad z konfigurátoru[\s\S]*$/m, "")
+        .trim();
+      return withoutOldQuote
+        ? `${withoutOldQuote}\n\n${applied.noteText}`
+        : applied.noteText;
+    });
+  }, [applied]);
+
   const claimPoints = useMemo(() => site.claim.points, []);
 
   return (
-    <section id="kontakt" className="bg-[#0c0c0c] py-20 md:py-28">
-      <div className="mx-auto grid max-w-6xl gap-12 px-4 md:grid-cols-2 md:px-6">
+    <Section id="kontakt" tone="panel" className="!border-t-0">
+      <div className="grid gap-14 lg:grid-cols-2 lg:gap-16">
         <div>
-          <h2 className="font-display text-4xl uppercase md:text-6xl">Kontakt</h2>
-          <p className="mt-4 font-display text-xl text-komatsu-yellow md:text-2xl">
-            {site.claim.title}
-          </p>
-          <ul className="mt-4 space-y-2 text-white/80">
+          <SectionHeader title="Kontakt" />
+          <ul className="mt-6 space-y-2 text-white/65">
             {claimPoints.map((p) => (
-              <li key={p}>• {p}</li>
+              <li key={p} className="flex gap-3">
+                <span className="mt-2 h-px w-4 shrink-0 bg-komatsu-yellow/70" aria-hidden />
+                <span>{p}</span>
+              </li>
             ))}
           </ul>
-          <dl className="mt-8 space-y-3 text-white/85">
+
+          {applied ? (
+            <div className="mt-10 border border-line bg-void/50 p-5">
+              <div className="flex items-start justify-between gap-4">
+                <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/45">
+                  Váš odhad z ceníku
+                </p>
+                <button
+                  type="button"
+                  onClick={clearApplied}
+                  className="cursor-pointer font-mono text-[11px] uppercase tracking-wide text-white/40 hover:text-white"
+                >
+                  Odebrat
+                </button>
+              </div>
+              <ul className="mt-4 space-y-2 text-sm text-white/70">
+                {applied.lines.map((l) => (
+                  <li key={l.id} className="flex justify-between gap-3">
+                    <span>{l.label}</span>
+                    <span className="tabular-nums text-white">{formatCzk(l.amount)}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-4 font-display text-2xl text-komatsu-yellow">
+                {formatCzk(applied.totalEx)}{" "}
+                <span className="text-sm font-sans font-normal text-white/50">
+                  bez DPH
+                </span>
+              </p>
+            </div>
+          ) : null}
+
+          <dl className="mt-10 space-y-5 text-white/85">
             <div>
-              <dt className="text-xs uppercase tracking-wide text-white/50">Telefon</dt>
+              <dt className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/40">
+                Telefon
+              </dt>
               <dd>
                 <a
                   href={phoneHref}
@@ -75,7 +128,9 @@ export function Contact() {
               </dd>
             </div>
             <div>
-              <dt className="text-xs uppercase tracking-wide text-white/50">E-mail</dt>
+              <dt className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/40">
+                E-mail
+              </dt>
               <dd>
                 <a href={`mailto:${unwrap(site.email)}`} className="hover:text-brand-red">
                   <Placeholder value={site.email} />
@@ -83,24 +138,32 @@ export function Contact() {
               </dd>
             </div>
             <div>
-              <dt className="text-xs uppercase tracking-wide text-white/50">Adresa</dt>
+              <dt className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/40">
+                Adresa
+              </dt>
               <dd>
                 <Placeholder value={site.address} />
               </dd>
             </div>
             <div>
-              <dt className="text-xs uppercase tracking-wide text-white/50">Provozní doba</dt>
+              <dt className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/40">
+                Provozní doba
+              </dt>
               <dd>
                 <Placeholder value={site.openingHours} />
               </dd>
             </div>
           </dl>
-          <Button href={phoneHref} className="mt-8" onClick={() => track("phone_click", { source: "contact_cta" })}>
+          <Button
+            href={phoneHref}
+            className="mt-8"
+            onClick={() => track("phone_click", { source: "contact_cta" })}
+          >
             Zavolat
           </Button>
         </div>
 
-        <form action={action} className="space-y-4 rounded-xl border border-white/10 bg-white/5 p-6">
+        <form action={action} className="space-y-5 border border-line p-6 md:p-8">
           <input type="hidden" name="startedAt" value={startedAt} />
           <input
             type="text"
@@ -114,13 +177,14 @@ export function Contact() {
 
           <h3 className="font-display text-2xl uppercase">Poptávka</h3>
 
-          <label className="block text-sm">
+          <label className="block text-sm text-white/70">
             Co potřebujete
             <select
               name="type"
               required
-              className="mt-1 w-full rounded border border-white/20 bg-black/40 px-3 py-2"
+              className={fieldClass}
               defaultValue="vykop"
+              key={applied ? `type-${applied.totalEx}` : "type-default"}
             >
               {site.inquiryTypes.map((t) => (
                 <option key={t.value} value={t.value}>
@@ -130,35 +194,27 @@ export function Contact() {
             </select>
           </label>
 
-          <label className="block text-sm">
+          <label className="block text-sm text-white/70">
             Místo (obec)*
             <input
               name="place"
               required
               autoComplete="address-level2"
-              className="mt-1 w-full rounded border border-white/20 bg-black/40 px-3 py-2"
+              className={fieldClass}
             />
           </label>
 
-          <label className="block text-sm">
+          <label className="block text-sm text-white/70">
             Termín (orientačně)
-            <input
-              name="term"
-              className="mt-1 w-full rounded border border-white/20 bg-black/40 px-3 py-2"
-            />
+            <input name="term" type="date" className={fieldClass} />
           </label>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="block text-sm">
+          <div className="grid gap-5 sm:grid-cols-2">
+            <label className="block text-sm text-white/70">
               Jméno*
-              <input
-                name="name"
-                required
-                autoComplete="name"
-                className="mt-1 w-full rounded border border-white/20 bg-black/40 px-3 py-2"
-              />
+              <input name="name" required autoComplete="name" className={fieldClass} />
             </label>
-            <label className="block text-sm">
+            <label className="block text-sm text-white/70">
               Telefon*
               <input
                 name="phone"
@@ -168,37 +224,34 @@ export function Contact() {
                 autoComplete="tel"
                 pattern="[\d\s+()-]{9,}"
                 title="Zadejte platné telefonní číslo (min. 9 číslic)"
-                className="mt-1 w-full rounded border border-white/20 bg-black/40 px-3 py-2"
+                className={fieldClass}
               />
             </label>
           </div>
 
-          <label className="block text-sm">
+          <label className="block text-sm text-white/70">
             E-mail
-            <input
-              name="email"
-              type="email"
-              autoComplete="email"
-              className="mt-1 w-full rounded border border-white/20 bg-black/40 px-3 py-2"
-            />
+            <input name="email" type="email" autoComplete="email" className={fieldClass} />
           </label>
 
-          <label className="block text-sm">
+          <label className="block text-sm text-white/70">
             Poznámka
             <textarea
               name="note"
-              rows={4}
-              className="mt-1 w-full rounded border border-white/20 bg-black/40 px-3 py-2"
+              rows={applied ? 7 : 4}
+              className={fieldClass}
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
             />
           </label>
 
-          <label className="flex items-start gap-2 text-sm text-white/80">
-            <input type="checkbox" name="consent" required className="mt-1" />
+          <label className="flex cursor-pointer items-start gap-2 text-sm text-white/70">
+            <input type="checkbox" name="consent" required className="mt-1 accent-brand-red" />
             <span>
               Souhlasím se{" "}
               <a
                 href="/zasady-ochrany-osobnich-udaju"
-                className="underline underline-offset-2"
+                className="underline underline-offset-4"
               >
                 zpracováním osobních údajů
               </a>
@@ -222,24 +275,21 @@ export function Contact() {
             {state.ok ? (
               <div className="mt-3 flex flex-wrap gap-3">
                 {state.mailto ? (
-                  <a
-                    href={state.mailto}
-                    className="underline underline-offset-2"
-                  >
+                  <a href={state.mailto} className="underline underline-offset-4">
                     Otevřít e-mail (mailto)
                   </a>
                 ) : null}
-                <a href={phoneHref} className="underline underline-offset-2">
+                <a href={phoneHref} className="underline underline-offset-4">
                   Raději zavolat
                 </a>
               </div>
             ) : null}
             {!state.ok && state.message.includes("nepodařilo") ? (
               <div className="mt-3 flex flex-wrap gap-3">
-                <a href={mailtoFallback} className="underline underline-offset-2">
+                <a href={mailtoFallback} className="underline underline-offset-4">
                   Napsat e-mailem
                 </a>
-                <a href={phoneHref} className="underline underline-offset-2">
+                <a href={phoneHref} className="underline underline-offset-4">
                   Raději zavolat
                 </a>
               </div>
@@ -258,6 +308,6 @@ export function Contact() {
           </div>
         </form>
       </div>
-    </section>
+    </Section>
   );
 }

@@ -3,11 +3,10 @@
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { site, type SiteString } from "@/content/site";
-import { Card } from "@/components/ui/Card";
+import { site, unwrap, type SiteString } from "@/content/site";
 import { Placeholder } from "@/components/ui/Placeholder";
 import { AssetOrPlaceholder } from "@/components/ui/AssetOrPlaceholder";
-import { TextureBackground } from "@/components/motion/TextureBackground";
+import { Section, SectionHeader } from "@/components/ui/Section";
 import { useReducedMotion } from "@/components/motion/useReducedMotion";
 import { isPlaceholderPhotoPath, showPlaceholders } from "@/lib/placeholders";
 
@@ -25,13 +24,19 @@ function SpecValue({
   value,
   unit,
   decimals,
+  size = "lg",
 }: {
   value: number | SiteString;
   unit: string;
   decimals?: number;
+  size?: "lg" | "sm";
 }) {
   const ref = useRef<HTMLSpanElement>(null);
   const reduced = useReducedMotion();
+  const display =
+    size === "lg"
+      ? "font-display text-2xl text-komatsu-yellow md:text-3xl"
+      : "font-display text-lg text-komatsu-yellow";
 
   useEffect(() => {
     if (typeof value !== "number" || !ref.current) return;
@@ -62,14 +67,14 @@ function SpecValue({
 
   if (typeof value !== "number") {
     return (
-      <span className="font-display text-2xl text-komatsu-yellow">
+      <span className={display}>
         <Placeholder value={value} /> {unit}
       </span>
     );
   }
 
   return (
-    <span className="font-display text-2xl text-komatsu-yellow">
+    <span className={display}>
       <span ref={ref}>{reduced ? formatSpecNumber(value, decimals) : "0"}</span>
       {unit ? ` ${unit}` : ""}
     </span>
@@ -78,65 +83,115 @@ function SpecValue({
 
 export function Fleet() {
   const showEx = showPlaceholders();
+  const bagr = site.fleet.find((f) => f.id === "bagr");
+  const extras = site.fleet.filter((f) => f.id !== "bagr");
+
+  if (!bagr) return null;
 
   return (
-    <TextureBackground
-      id="technika"
-      desktop="/textures/gravel.webp"
-      mobile="/textures/gravel-mobile.webp"
-      className="py-20 md:py-28"
-    >
-      <div className="mx-auto max-w-6xl px-4 md:px-6">
-        <h2 className="font-display text-4xl uppercase md:text-6xl">Technika</h2>
-        <p className="mt-3 max-w-2xl text-white/80">
-          Minibagr, vlastní doprava a kontejnery – připraveno na zakázku.
-        </p>
-        <div className="mt-10 grid gap-6 lg:grid-cols-3">
-          {site.fleet.map((item) => (
-            <Card key={item.id} className="overflow-hidden !p-0">
-              <div className="relative">
+    <Section id="technika" tone="void">
+      <SectionHeader title="Technika">
+        Hlavní je minibagr Komatsu – doprava a kontejner jdou s ním.
+      </SectionHeader>
+
+      <article className="mt-14">
+        <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-16">
+          <div className="relative overflow-hidden border border-line">
+            <AssetOrPlaceholder
+              src={bagr.image}
+              alt={bagr.title}
+              className="aspect-[4/3] h-auto w-full object-cover"
+              loading="lazy"
+            />
+            {showEx && isPlaceholderPhotoPath(bagr.image) ? (
+              <span className="absolute right-3 top-3 border border-line bg-void/80 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wide text-komatsu-yellow">
+                ilustrační
+              </span>
+            ) : null}
+          </div>
+
+          <div>
+            <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/40">
+              Minibagr s obsluhou
+            </p>
+            <h3 className="mt-3 font-display text-4xl uppercase leading-[1.08] md:text-5xl">
+              {bagr.title}
+            </h3>
+            <p className="mt-5 max-w-md text-base leading-relaxed text-white/65">
+              {bagr.blurb}
+            </p>
+            <dl className="mt-8 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-line pt-6">
+              {bagr.specs.map((spec) => (
+                <div key={spec.label}>
+                  <dt className="font-mono text-[10px] uppercase tracking-[0.18em] text-white/40">
+                    {spec.label}
+                  </dt>
+                  <dd className="mt-1">
+                    {typeof spec.value === "string" ? (
+                      <span className="font-display text-2xl text-komatsu-yellow md:text-3xl">
+                        {spec.value}
+                      </span>
+                    ) : (
+                      <SpecValue
+                        value={spec.value}
+                        unit={spec.unit}
+                        decimals={"decimals" in spec ? spec.decimals : 0}
+                      />
+                    )}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </div>
+      </article>
+
+      <div className="mt-16 border-t border-line pt-10">
+        <ul className="grid gap-8 md:grid-cols-2 md:gap-12">
+          {extras.map((item) => (
+            <li key={item.id} className="flex gap-5">
+              <div className="relative aspect-[4/3] w-36 shrink-0 bg-void sm:w-40">
                 <AssetOrPlaceholder
                   src={item.image}
-                  alt={item.title}
-                  className="h-48 w-full object-cover"
+                  alt=""
+                  className="absolute inset-0 h-full w-full object-cover"
                   loading="lazy"
                 />
+                {/* Inset ring — stejná 1px linka na retina, bez subpixel border+overflow. */}
+                <span
+                  className="pointer-events-none absolute inset-0 shadow-[inset_0_0_0_1px_rgba(255,255,255,0.12)]"
+                  aria-hidden
+                />
                 {showEx && isPlaceholderPhotoPath(item.image) ? (
-                  <span className="absolute right-2 top-2 rounded bg-black/70 px-2 py-0.5 text-[10px] uppercase tracking-wide text-komatsu-yellow">
-                    ilustrační
+                  <span className="absolute right-1.5 top-1.5 border border-line bg-void/80 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wide text-komatsu-yellow">
+                    ilustr.
                   </span>
                 ) : null}
               </div>
-              <div className="p-6">
-                <h3 className="font-display text-2xl uppercase">{item.title}</h3>
-                <p className="mt-2 text-sm text-white/70">{item.blurb}</p>
-                <dl className="mt-5 space-y-3 border-t border-white/10 pt-4">
-                  {item.specs.map((spec) => (
-                    <div key={spec.label} className="flex items-end justify-between gap-3">
-                      <dt className="text-xs uppercase tracking-wide text-white/55">
-                        {spec.label}
-                      </dt>
-                      <dd className="text-right">
-                        {typeof spec.value === "string" ? (
-                          <span className="font-display text-lg text-komatsu-yellow">
-                            {spec.value}
-                          </span>
-                        ) : (
-                          <SpecValue
-                            value={spec.value}
-                            unit={spec.unit}
-                            decimals={"decimals" in spec ? spec.decimals : 0}
-                          />
-                        )}
-                      </dd>
-                    </div>
-                  ))}
-                </dl>
+              <div className="min-w-0">
+                <h4 className="font-display text-xl uppercase leading-tight">
+                  {item.title}
+                </h4>
+                <p className="mt-2 text-sm leading-relaxed text-white/55">
+                  {item.blurb}
+                </p>
+                <p className="mt-3 font-mono text-[11px] text-white/40">
+                  {item.specs
+                    .slice(0, 2)
+                    .map((s) => {
+                      const val =
+                        typeof s.value === "number"
+                          ? `${formatSpecNumber(s.value, "decimals" in s ? s.decimals : 0)}${s.unit ? `\u00a0${s.unit}` : ""}`
+                          : unwrap(s.value);
+                      return `${s.label.toLowerCase()} ${val}`.trim();
+                    })
+                    .join(" · ")}
+                </p>
               </div>
-            </Card>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
-    </TextureBackground>
+    </Section>
   );
 }

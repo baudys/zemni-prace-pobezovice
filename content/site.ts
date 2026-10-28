@@ -42,14 +42,18 @@ export function collectExamplePaths(
 export const site = {
   name: ex("GTS Minibagr"),
   domain: ex("minibagr-gts.cz"),
-  operator: ex("G.T.S. Poběžovice, spol. s r.o."),
-  ico: ex("[IČO – DOPLNIT]"),
-  dic: ex("[DIČ – DOPLNIT]"),
-  phone: ex("+420 000 000 000"),
-  phoneHref: ex("tel:+420000000000"),
-  email: ex("poptavka@example.cz"),
-  address: ex("Poběžovice, 345 22"),
-  openingHours: ex("Po–Pá 7:00–17:00, So po domluvě"),
+  operator: "G.T.S. Poběžovice, spol. s r.o.",
+  ico: "25921185",
+  dic: "CZ25921185",
+  phone: "+420 724 518 782",
+  phoneHref: "tel:+420724518782",
+  email: "svec@gts-pce.cz",
+  emailHref: "mailto:svec@gts-pce.cz",
+  address: "Žižkova 188, 345 22 Poběžovice",
+  hqAddress: "Na Sadech 12, 252 25 Zbuzany",
+  openingHours: "Po–Čt 7:00–16:30, Pá 7:00–11:00",
+  companyUrl: "https://www.gts-pobezovice.cz",
+  contactPerson: "Zbyněk Švec",
   areaLabel: "Domažlicko a okolí do 50 km od Poběžovic",
   geo: {
     lat: 49.5107,
@@ -110,13 +114,13 @@ export const site = {
       bullets: ["Kontejner ~5 m³", "Odvoz suti a zeminy", "Likvidace dle druhu"],
     },
   ],
-  // Interní poznámky (nerenderovat na webu): bagr – fotka placeholder výrobce;
+  // Interní poznámky (nerenderovat na webu): studio stills Dreamina (28. 10. 2026);
   // MAN – ověřit u Zbyňka současné naložení; kontejnery – ověřit objem; hloubka výkopu u stroje.
   fleet: [
     {
       id: "bagr",
       title: "Komatsu PC38MR-5",
-      image: "/photos/placeholder/pc38mr-cutout.webp",
+      image: "/photos/pc38mr-studio.webp",
       specs: [
         { label: "Provozní hmotnost", value: 3.8, unit: "t", decimals: 1 },
         { label: "Šířka", value: 1.74, unit: "m", decimals: 2 },
@@ -128,7 +132,7 @@ export const site = {
     {
       id: "man",
       title: "MAN TGL 12.220 + MULTITEC",
-      image: "/photos/man-tgl-real.webp",
+      image: "/photos/man-tgl-studio.webp",
       specs: [
         { label: "Celková hmotnost", value: 12, unit: "t", decimals: 0 },
         { label: "Výkon", value: 220, unit: "k", decimals: 0 },
@@ -139,7 +143,7 @@ export const site = {
     {
       id: "kontejnery",
       title: "Kontejnery 4,5 m",
-      image: "/photos/placeholder/kontejner-sutovy.webp",
+      image: "/photos/kontejnery-studio.webp",
       specs: [
         { label: "Počet", value: 2, unit: "ks", decimals: 0 },
         { label: "Objem", value: 5, unit: "m³", decimals: 0 },
@@ -147,23 +151,6 @@ export const site = {
         { label: "Max. náklad", value: ex("[t – doplnit]"), unit: "" },
       ],
       blurb: "Přistavení a odvoz na místě – suť i zemina bez hledání jiné firmy.",
-    },
-  ],
-  howItWorks: [
-    {
-      step: 1,
-      title: "Poptáte",
-      text: "Formulář nebo telefon – ideálně s fotkou místa a krátkým popisem práce.",
-    },
-    {
-      step: 2,
-      title: "Naceníme a domluvíme termín",
-      text: "Řekneme cenu předem a najdeme termín, který sedí oběma stranám.",
-    },
-    {
-      step: 3,
-      title: "Přijedeme, uděláme, odvezeme",
-      text: "Dovezeme bagr (a kontejner), práci odvedeme a materiál odvezeme.",
     },
   ],
   pricing: [
@@ -206,7 +193,7 @@ export const site = {
     },
   ],
   pricingDisclaimer:
-    "Ceny jsou orientační, bez DPH. Přesnou cenu řekneme předem po krátkém telefonátu nebo fotce místa.",
+    "Ceny jsou orientační, bez DPH. Přesnou cenu potvrdíme předem v odpovědi na poptávku.",
   towns: {
     bold: [
       "Poběžovice",
@@ -245,13 +232,20 @@ export const site = {
   },
   scrollTexts: [
     { start: 0, end: 0.3, title: "Výkopy a základy" },
-    { start: 0.3, end: 0.6, title: "Terénní úpravy" },
-    { start: 0.6, end: 0.8, title: "Stísněné prostory – šířka 1,74 m" },
+    { start: 0.3, end: 0.58, title: "Terénní úpravy" },
     {
-      start: 0.8,
+      start: 0.58,
+      end: 0.84,
+      title: "Stísněné prostory",
+      subtitle: ex("1,74 m"),
+      detail: "šířka stroje",
+    },
+    {
+      start: 0.84,
       end: 1,
       title: "Jdeme do hloubky",
-      subtitle: ex("Až 3,45 m pod povrch"),
+      subtitle: ex("3,45 m"),
+      detail: "hloubka výkopu",
     },
   ],
   truckCopy: "Bagr i kontejner přivezeme sami – vlastním MAN TGL 12.220.",
@@ -298,7 +292,7 @@ export const site = {
     },
     {
       q: "Kam se bagr vejde?",
-      a: "Šířka 1,74 m (průjezd ~1,8 m), krátká záď. Nejste-li si jistí, pošlete fotku místa.",
+      a: "Šířka 1,74 m (průjezd ~1,8 m), krátká záď. Nejste-li si jistí, popište přístup v poptávce.",
     },
     {
       q: "Poškodí bagr trávník nebo dlažbu?",
@@ -318,7 +312,7 @@ export const site = {
     },
     {
       q: "Co potřebujete k nacenění?",
-      a: "Co a kde, rozsah (délka, hloubka), přístup na pozemek, ideálně fotky.",
+      a: "Co a kde, rozsah (délka, hloubka) a přístup na pozemek – vše jde napsat do poptávky.",
     },
     {
       q: "Co když prší?",

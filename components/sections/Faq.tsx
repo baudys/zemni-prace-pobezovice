@@ -3,18 +3,20 @@
 import { useId, useState } from "react";
 import { site, unwrap } from "@/content/site";
 import { Placeholder } from "@/components/ui/Placeholder";
+import { Section, SectionHeader } from "@/components/ui/Section";
 
 export function Faq() {
   const baseId = useId();
   const [open, setOpen] = useState<number | null>(null);
 
   return (
-    <section id="faq" className="bg-[#0f0f0f] py-20 md:py-28">
-      <div className="mx-auto max-w-3xl px-4 md:px-6">
-        <h2 className="font-display text-4xl uppercase md:text-6xl">FAQ</h2>
-        <p className="mt-3 text-white/75">Nejčastější otázky před poptávkou.</p>
+    <Section id="faq" tone="void">
+      <div className="mx-auto max-w-3xl">
+        <SectionHeader title="FAQ">
+          Nejčastější otázky před poptávkou.
+        </SectionHeader>
 
-        <div className="mt-10 divide-y divide-white/10 border-y border-white/10">
+        <div className="mt-12 divide-y divide-line border-y border-line">
           {site.faq.map((item, i) => {
             const isOpen = open === i;
             const panelId = `${baseId}-panel-${i}`;
@@ -25,13 +27,13 @@ export function Faq() {
                   <button
                     id={buttonId}
                     type="button"
-                    className="flex w-full items-center justify-between gap-4 py-5 text-left font-display text-lg uppercase tracking-wide"
+                    className="flex w-full cursor-pointer items-center justify-between gap-4 py-5 text-left font-display text-lg uppercase tracking-wide transition hover:text-komatsu-yellow"
                     aria-expanded={isOpen}
                     aria-controls={panelId}
                     onClick={() => setOpen(isOpen ? null : i)}
                   >
                     {item.q}
-                    <span aria-hidden className="text-komatsu-yellow">
+                    <span aria-hidden className="font-mono text-komatsu-yellow">
                       {isOpen ? "−" : "+"}
                     </span>
                   </button>
@@ -46,7 +48,7 @@ export function Faq() {
                   }`}
                 >
                   <div className="overflow-hidden">
-                    <div className={`text-white/75 ${isOpen ? "pb-5" : "pb-0"}`}>
+                    <div className={`text-white/65 ${isOpen ? "pb-5" : "pb-0"}`}>
                       {typeof item.a === "string" ? (
                         <p>{item.a}</p>
                       ) : (
@@ -62,7 +64,7 @@ export function Faq() {
           })}
         </div>
       </div>
-    </section>
+    </Section>
   );
 }
 

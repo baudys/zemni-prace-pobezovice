@@ -6,7 +6,7 @@ const config = [
   ...nextVitals,
   ...nextTs,
   {
-    ignores: [".next/**", "out/**", "node_modules/**", "raw/**"],
+    ignores: [".next/**", ".vercel/**", "out/**", "node_modules/**", "raw/**"],
   },
 ];
 

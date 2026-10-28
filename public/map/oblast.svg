@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Oblast p?sobnosti 50 km od Pob?ovic">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-label="Oblast pÅ¯sobnosti 50 km od PobÄ›Å¾ovic">
   <defs>
     <radialGradient id="g" cx="50%" cy="50%" r="50%">
       <stop offset="0%" stop-color="#3a2a1c"/>
@@ -24,31 +24,20 @@
   <text x="70" y="700" fill="#888" font-size="14" font-family="sans-serif">Bavorsko</text>
   <circle cx="400" cy="400" r="8" fill="#E1011B"/>
   <circle cx="400" cy="400" r="16" fill="none" stroke="#E1011B" stroke-width="2"/>
-  <text x="420" y="406" fill="#fff" font-size="18" font-family="sans-serif" font-weight="700">Pob?ovice</text>
+  <text x="420" y="406" fill="#fff" font-size="18" font-family="sans-serif" font-weight="700">PobÄ›Å¾ovice</text>
   <g fill="#F5B800" font-size="13" font-family="sans-serif">
-    <!-- Domalice JV -->
-    <circle cx="485" cy="470" r="3"/><text x="493" y="474">Domalice</text>
-    <!-- Hostou? SV -->
-    <circle cx="445" cy="350" r="3"/><text x="453" y="354">Hostou?</text>
-    <!-- Horšovskı Tın V -->
-    <circle cx="520" cy="390" r="3"/><text x="528" y="394">Horšovskı Tın</text>
-    <!-- B?lá nad Radbuzou SZ -->
-    <circle cx="310" cy="340" r="3"/><text x="220" y="344">B?lá n. R.</text>
-    <!-- Kdyn? JV -->
-    <circle cx="510" cy="530" r="3"/><text x="518" y="534">Kdyn?</text>
-    <!-- Holıšov V -->
-    <circle cx="560" cy="420" r="3"/><text x="568" y="424">Holıšov</text>
-    <!-- ?eská Kubice J -->
-    <circle cx="390" cy="560" r="3"/><text x="300" y="564">?eská Kubice</text>
-    <!-- Sta?kov SV -->
-    <circle cx="555" cy="300" r="3"/><text x="563" y="304">Sta?kov</text>
-    <!-- P?imda S/SZ -->
-    <circle cx="280" cy="280" r="3"/><text x="210" y="284">P?imda</text>
-    <!-- Kolove? V -->
-    <circle cx="545" cy="470" r="3"/><text x="553" y="474">Kolove?</text>
-    <!-- Bor S -->
+    <circle cx="485" cy="470" r="3"/><text x="493" y="474">DomaÅ¾lice</text>
+    <circle cx="445" cy="350" r="3"/><text x="453" y="354">HostouÅˆ</text>
+    <circle cx="520" cy="390" r="3"/><text x="528" y="394">HorÅ¡ovskÃ½ TÃ½n</text>
+    <circle cx="310" cy="340" r="3"/><text x="220" y="344">BÄ›lÃ¡ n. R.</text>
+    <circle cx="510" cy="530" r="3"/><text x="518" y="534">KdynÄ›</text>
+    <circle cx="560" cy="420" r="3"/><text x="568" y="424">HolÃ½Å¡ov</text>
+    <circle cx="390" cy="560" r="3"/><text x="300" y="564">ÄŒeskÃ¡ Kubice</text>
+    <circle cx="555" cy="300" r="3"/><text x="563" y="304">StaÅˆkov</text>
+    <circle cx="280" cy="280" r="3"/><text x="210" y="284">PÅ™imda</text>
+    <circle cx="545" cy="470" r="3"/><text x="553" y="474">KoloveÄ</text>
     <circle cx="350" cy="250" r="3"/><text x="358" y="254">Bor</text>
   </g>
-  <text x="400" y="740" text-anchor="middle" fill="#C8A877" font-size="14" font-family="sans-serif">okruh 50 km · 10 / 25 / 50</text>
-  <text x="400" y="770" text-anchor="middle" fill="#666" font-size="11" font-family="sans-serif">© OpenStreetMap contributors · stylizovaná mapa</text>
+  <text x="400" y="740" text-anchor="middle" fill="#C8A877" font-size="14" font-family="sans-serif">okruh 50 km Â· 10 / 25 / 50</text>
+  <text x="400" y="770" text-anchor="middle" fill="#666" font-size="11" font-family="sans-serif">Â© OpenStreetMap contributors Â· stylizovanÃ¡ mapa</text>
 </svg>

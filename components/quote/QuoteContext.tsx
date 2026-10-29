@@ -11,13 +11,13 @@ import {
 import { formatCzk, site, withVat } from "@/content/site";
 
 const HOURLY =
-  site.pricing.find((p) => p.id === "bagr-hodina")?.amountExVat ?? 950;
+  site.pricing.find((p) => p.id === "bagr-hodina")?.amountExVat ?? 1200;
 const MIN_JOB =
-  site.pricing.find((p) => p.id === "minimum")?.amountExVat ?? 3800;
+  site.pricing.find((p) => p.id === "minimum")?.amountExVat ?? 4800;
 const KM_RATE =
-  site.pricing.find((p) => p.id === "doprava")?.amountExVat ?? 35;
+  site.pricing.find((p) => p.id === "doprava")?.amountExVat ?? 42;
 const CONTAINER_FROM =
-  site.pricing.find((p) => p.id === "kontejner")?.amountExVat ?? 1900;
+  site.pricing.find((p) => p.id === "kontejner")?.amountExVat ?? 2400;
 
 export const MIN_HOURS = Math.max(1, Math.round(MIN_JOB / HOURLY));
 

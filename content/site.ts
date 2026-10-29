@@ -168,7 +168,7 @@ export const site = {
     {
       id: "bagr-hodina",
       title: "Minibagr s obsluhou",
-      amountExVat: 950,
+      amountExVat: 1200,
       unit: "/h",
       note: "stroj + strojník + palivo",
       example: true as const,
@@ -176,7 +176,7 @@ export const site = {
     {
       id: "minimum",
       title: "Minimální zakázka",
-      amountExVat: 3800,
+      amountExVat: 4800,
       unit: "",
       badge: "4 h",
       example: true as const,
@@ -184,7 +184,7 @@ export const site = {
     {
       id: "doprava",
       title: "Doprava",
-      amountExVat: 35,
+      amountExVat: 42,
       unit: "/km",
       note: "včetně naložení; km tam i zpět",
       example: true as const,
@@ -192,7 +192,7 @@ export const site = {
     {
       id: "kontejner",
       title: "Přistavení kontejneru 4,5 m (~5 m³)",
-      amountExVat: 1900,
+      amountExVat: 2400,
       unit: "",
       from: true,
       note: "plato / suťový, dle vzdálenosti",
@@ -315,7 +315,7 @@ export const site = {
     },
     {
       q: "Kolik to stojí a jak se počítá doprava?",
-      a: "Orientačně 950 Kč/h bez DPH (min. 4 h), doprava 35 Kč/km. Přesnou cenu řekneme předem.",
+      a: "Orientačně 1200 Kč/h bez DPH (min. 4 h), doprava 42 Kč/km. Přesnou cenu řekneme předem.",
     },
     {
       q: "Co s vykopanou zeminou a sutí?",

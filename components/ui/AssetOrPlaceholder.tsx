@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState, type CSSProperties, type ImgHTMLAttributes } from "react";
 
 type Props = {
@@ -10,6 +11,9 @@ type Props = {
   asBackground?: boolean;
   width?: number;
   height?: number;
+  /** Předáno Next Image → správný srcset (jinak plain <img>). */
+  sizes?: string;
+  fill?: boolean;
   loading?: ImgHTMLAttributes<HTMLImageElement>["loading"];
 };
 
@@ -21,6 +25,8 @@ export function AssetOrPlaceholder({
   asBackground,
   width,
   height,
+  sizes,
+  fill = false,
   loading = "lazy",
 }: Props) {
   const [missing, setMissing] = useState(false);
@@ -51,6 +57,36 @@ export function AssetOrPlaceholder({
         decoding="async"
         className={`pointer-events-none absolute inset-0 h-full w-full object-cover ${className}`}
         style={style}
+        onError={() => setMissing(true)}
+      />
+    );
+  }
+
+  if (sizes && (fill || (width != null && height != null))) {
+    if (fill) {
+      return (
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          sizes={sizes}
+          className={className}
+          style={style}
+          loading={loading}
+          onError={() => setMissing(true)}
+        />
+      );
+    }
+    return (
+      <Image
+        src={src}
+        alt={alt}
+        width={width}
+        height={height}
+        sizes={sizes}
+        className={className}
+        style={style}
+        loading={loading}
         onError={() => setMissing(true)}
       />
     );

@@ -20,7 +20,7 @@ export function Footer() {
           <p className="mt-5 text-sm leading-relaxed text-white/55">
             Provozuje <Placeholder value={site.operator} />
           </p>
-          <p className="mt-2 font-mono text-[11px] text-white/40">
+          <p className="mt-2 font-mono text-[11px] text-white/60">
             IČO: <Placeholder value={site.ico} /> · DIČ:{" "}
             <Placeholder value={site.dic} />
           </p>
@@ -37,7 +37,7 @@ export function Footer() {
         </div>
 
         <div className="md:col-span-4">
-          <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-white/40">
+          <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-white/60">
             Kontakt
           </p>
           <ul className="mt-4 space-y-2 text-sm text-white/70">
@@ -70,7 +70,7 @@ export function Footer() {
         </div>
 
         <div className="md:col-span-4">
-          <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-white/40">
+          <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-white/60">
             Rychlé odkazy
           </p>
           <ul className="mt-4 space-y-2 text-sm text-white/70">
@@ -99,18 +99,18 @@ export function Footer() {
       </div>
 
       <div className="mx-auto mt-14 flex max-w-6xl flex-col gap-3 border-t border-line px-4 pt-8 text-sm text-white/45 md:flex-row md:items-center md:justify-between md:px-8">
-        <p className="text-white/40">
+        <p className="text-white/60">
           Vytvořil{" "}
           <a
             href="https://www.baudys.dev"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-white/55 underline underline-offset-4 transition hover:text-white"
+            className="text-white/70 underline underline-offset-4 transition hover:text-white"
           >
             Daniel Anthony Baudyš
           </a>
         </p>
-        <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/35">
+        <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-white/60">
           © {year} <Placeholder value={site.name} />
         </p>
       </div>

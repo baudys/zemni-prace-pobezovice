@@ -4,6 +4,10 @@ import { z } from "zod";
 
 const phonePattern = /^[0-9 +()\-]{9,}$/;
 
+function countPhoneDigits(value: string): number {
+  return value.replace(/\D/g, "").length;
+}
+
 const inquirySchema = z.object({
   type: z.enum(["vykop", "teren", "preprava", "sut", "jine"]),
   place: z.string().trim().min(2, "Zadejte obec / místo"),
@@ -12,9 +16,9 @@ const inquirySchema = z.object({
   phone: z
     .string()
     .trim()
-    .regex(phonePattern, "Zadejte platné telefonní číslo (min. 9 znaků)")
-    .refine((v) => v.replace(/\D/g, "").length >= 9, {
-      message: "Telefon musí obsahovat alespoň 9 číslic",
+    .regex(phonePattern, "Zadejte platné telefonní číslo (min. 9 číslic)")
+    .refine((v) => countPhoneDigits(v) >= 9, {
+      message: "Zadejte platné telefonní číslo (min. 9 číslic)",
     }),
   email: z.union([z.string().trim().email("Zadejte platný e-mail"), z.literal("")]),
   note: z.string().trim().optional(),

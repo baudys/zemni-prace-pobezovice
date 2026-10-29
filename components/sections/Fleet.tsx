@@ -100,9 +100,9 @@ export function Fleet() {
             <AssetOrPlaceholder
               src={bagr.image}
               alt={bagr.imageAlt}
-              width={1024}
-              height={768}
-              className="absolute inset-0 h-full w-full object-cover"
+              fill
+              sizes="(min-width: 1024px) 40vw, calc(100vw - 2rem)"
+              className="object-cover"
               loading="lazy"
             />
             {showEx && isPlaceholderPhotoPath(bagr.image) ? (

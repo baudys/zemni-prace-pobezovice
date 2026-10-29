@@ -43,6 +43,10 @@ async function loadManifest(url: string): Promise<Manifest | null> {
   }
 }
 
+/** Desktop: mírně vlevo od středu. Mobil: víc doprava, ať je vidět celá kabina. */
+const FOCUS_DESKTOP = { x: 0.4, y: 0.55 } as const;
+const FOCUS_MOBILE = { x: 0.78, y: 0.52 } as const;
+
 function drawCover(
   ctx: CanvasRenderingContext2D,
   img: CanvasImageSource,
@@ -50,8 +54,8 @@ function drawCover(
   ch: number,
   iw: number,
   ih: number,
-  focusX = 0.4,
-  focusY = 0.55,
+  focusX: number = FOCUS_DESKTOP.x,
+  focusY: number = FOCUS_DESKTOP.y,
 ) {
   const scale = Math.max(cw / iw, ch / ih);
   const dw = iw * scale;
@@ -135,7 +139,7 @@ function HeroCopy() {
 
   return (
     <div ref={rootRef}>
-      <h1 className="font-display text-[clamp(1.75rem,5.5vw,4.5rem)] uppercase leading-[1.12] text-white drop-shadow-[0_2px_24px_rgba(0,0,0,0.65)]">
+      <h1 className="font-display text-[clamp(1.35rem,calc(0.55rem+5.2vw),4.5rem)] uppercase leading-[1.12] tracking-tight text-white drop-shadow-[0_2px_24px_rgba(0,0,0,0.65)]">
         {HERO_LINES.map((line) => (
           <span key={line} data-hero="line" className="block whitespace-nowrap">
             {line}
@@ -171,7 +175,7 @@ function HeroCopy() {
 }
 
 const heroCopyLayout =
-  "mx-auto flex w-full max-w-4xl flex-col items-center px-4 pt-[max(6.5rem,11vh)] text-center pb-[min(52vh,28rem)] md:pb-[min(54vh,32rem)]";
+  "mx-auto flex w-full max-w-4xl flex-col items-center px-4 sm:px-6 pt-[max(6.5rem,11vh)] text-center pb-[min(52vh,28rem)] md:pb-[min(54vh,32rem)]";
 
 function StaticHero({ firstFrame }: { firstFrame: string }) {
   const mediaRef = useRef<HTMLDivElement>(null);
@@ -179,6 +183,10 @@ function StaticHero({ firstFrame }: { firstFrame: string }) {
 
   useEffect(() => {
     if (reduced || !mediaRef.current) return;
+    const mobile = window.matchMedia("(max-width: 767px)").matches;
+    const origin = mobile
+      ? `${FOCUS_MOBILE.x * 100}% ${FOCUS_MOBILE.y * 100}%`
+      : `${FOCUS_DESKTOP.x * 100}% ${FOCUS_DESKTOP.y * 100}%`;
     const tween = gsap.fromTo(
       mediaRef.current,
       { scale: 1 },
@@ -186,7 +194,7 @@ function StaticHero({ firstFrame }: { firstFrame: string }) {
         scale: 1.06,
         duration: 16,
         ease: "none",
-        transformOrigin: "40% 55%",
+        transformOrigin: origin,
       },
     );
     return () => {
@@ -204,7 +212,7 @@ function StaticHero({ firstFrame }: { firstFrame: string }) {
           <AssetOrPlaceholder
             src={firstFrame}
             alt=""
-            className="h-full w-full object-cover object-[40%_55%]"
+            className="h-full w-full object-cover object-[78%_52%] md:object-[40%_55%]"
           />
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/20 to-transparent" />
@@ -458,7 +466,17 @@ export function ScrollSequence() {
           "naturalHeight" in hit.img
             ? hit.img.naturalHeight || digHeight
             : hit.img.height;
-        drawCover(ctx, hit.img, window.innerWidth, window.innerHeight, iw, ih);
+        const focus = isMobile ? FOCUS_MOBILE : FOCUS_DESKTOP;
+        drawCover(
+          ctx,
+          hit.img,
+          window.innerWidth,
+          window.innerHeight,
+          iw,
+          ih,
+          focus.x,
+          focus.y,
+        );
         lastDrawn = index;
       };
       paintFn = paint;

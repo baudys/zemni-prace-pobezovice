@@ -5,7 +5,7 @@ import { SmoothScroll } from "@/components/motion/SmoothScroll";
 import { SiteAtmosphere } from "@/components/motion/SiteAtmosphere";
 import { site, collectExamplePaths } from "@/content/site";
 import { faqPageJsonLd, localBusinessJsonLd } from "@/lib/jsonld";
-import { isProductionDeploy, siteOrigin } from "@/lib/site-url";
+import { allowSearchIndexing, siteOrigin } from "@/lib/site-url";
 import "./globals.css";
 
 const display = Archivo_Black({
@@ -28,7 +28,7 @@ const mono = IBM_Plex_Mono({
   display: "swap",
 });
 
-const isProd = isProductionDeploy();
+const canIndex = allowSearchIndexing();
 const origin = siteOrigin();
 const metadataBase = new URL(origin);
 
@@ -36,24 +36,26 @@ export const metadata: Metadata = {
   metadataBase,
   title: site.meta.title,
   description: site.meta.description,
-  robots: isProd
+  robots: canIndex
     ? { index: true, follow: true }
-    : { index: false, follow: false },
+    : { index: false, follow: false, nocache: true },
+  alternates: {
+    canonical: origin,
+  },
   openGraph: {
     title: site.meta.title,
     description: site.meta.description,
     locale: "cs_CZ",
     type: "website",
     url: origin,
-    images: [{ url: "/opengraph-image", width: 1200, height: 630 }],
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+      },
+    ],
   },
-  ...(isProd
-    ? {
-        alternates: {
-          canonical: origin,
-        },
-      }
-    : {}),
 };
 
 if (process.env.NODE_ENV === "production") {

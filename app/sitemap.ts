@@ -1,9 +1,9 @@
 import type { MetadataRoute } from "next";
-import { isProductionDeploy, siteOrigin } from "@/lib/site-url";
+import { allowSearchIndexing, siteOrigin } from "@/lib/site-url";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  // Preview/dev — prázdný sitemap (spolu s robots disallow).
-  if (!isProductionDeploy()) {
+  // Preview/dev / *.vercel.app — prázdný sitemap (spolu s robots disallow).
+  if (!allowSearchIndexing()) {
     return [];
   }
 

@@ -1,8 +1,9 @@
 import type { MetadataRoute } from "next";
-import { isProductionDeploy, siteOrigin } from "@/lib/site-url";
+import { allowSearchIndexing, siteOrigin } from "@/lib/site-url";
 
 export default function robots(): MetadataRoute.Robots {
-  if (!isProductionDeploy()) {
+  // Preview, dev i produkce na *.vercel.app — Disallow vše.
+  if (!allowSearchIndexing()) {
     return {
       rules: { userAgent: "*", disallow: "/" },
     };

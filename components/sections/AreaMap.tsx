@@ -38,9 +38,12 @@ class MapErrorBoundary extends Component<BoundaryProps, BoundaryState> {
 }
 
 const mapFallback = (
-  <div className="grid h-full place-items-center bg-void px-6 text-center text-sm text-white/60">
-    Mapu se nepodařilo zobrazit.
-  </div>
+  // eslint-disable-next-line @next/next/no-img-element
+  <img
+    src="/map/oblast.svg"
+    alt="Schéma oblasti do 50 km od Poběžovic"
+    className="h-full w-full object-contain bg-void p-2"
+  />
 );
 
 /**

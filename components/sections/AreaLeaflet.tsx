@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { Map as LeafletMap } from "leaflet";
+import type { Map as LeafletMap, TileLayer } from "leaflet";
 import { site } from "@/content/site";
 import {
   AREA_ORIGIN,
@@ -21,13 +21,21 @@ const LABEL_DIRECTION: Record<string, "left" | "right" | "top" | "bottom"> = {
   Poběžovice: "top",
   Tachov: "bottom",
   "Horšovský Týn": "right",
-  Domažlice: "bottom",
+  /** bottom překrývalo tečku — vlevo s offsetem. */
+  Domažlice: "left",
   Klatovy: "right",
   Stříbro: "left",
 };
 
+const LABEL_OFFSET: Record<string, [number, number]> = {
+  Domažlice: [-10, 0],
+  Poběžovice: [0, -6],
+};
+
 const TRANSPARENT_TILE =
   "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
+
+const TILE_ERROR_LIMIT = 6;
 
 type LeafletNamespace = typeof import("leaflet");
 
@@ -44,21 +52,59 @@ function resolveLeaflet(mod: LeafletNamespace): LeafletNamespace {
   throw new Error(`Leaflet export: ${Object.keys(mod).slice(0, 12).join(",")}`);
 }
 
+function MapSvgFallback() {
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src="/map/oblast.svg"
+      alt="Schéma oblasti do 50 km od Poběžovic"
+      className="absolute inset-0 h-full w-full object-contain bg-void p-2"
+    />
+  );
+}
+
 export function AreaLeaflet() {
   const hostRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(false);
   const [failed, setFailed] = useState(false);
 
+  // Lazy init — až když se sekce blíží viewportu.
   useEffect(() => {
     const el = hostRef.current;
     if (!el) return;
 
+    if (typeof IntersectionObserver === "undefined") {
+      const id = requestAnimationFrame(() => setActive(true));
+      return () => cancelAnimationFrame(id);
+    }
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setActive(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "400px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!active || failed) return;
+    const el = hostRef.current;
+    if (!el) return;
+
     let map: LeafletMap | null = null;
+    let tiles: TileLayer | null = null;
     let observer: ResizeObserver | null = null;
     let disposed = false;
+    let tileErrors = 0;
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const coarse = window.matchMedia("(pointer: coarse)").matches;
-    const showLabels = window.matchMedia("(min-width: 768px)").matches;
+    const desktop = window.matchMedia("(min-width: 768px)").matches;
     const bold = new Set<string>(site.towns.bold);
 
     void import("leaflet")
@@ -95,11 +141,18 @@ export function AreaLeaflet() {
           })
           .addTo(map);
 
-        L.tileLayer(TILE_URL, {
+        tiles = L.tileLayer(TILE_URL, {
           maxZoom: 20,
           attribution: TILE_ATTRIBUTION,
           errorTileUrl: TRANSPARENT_TILE,
         }).addTo(map);
+
+        tiles.on("tileerror", () => {
+          tileErrors += 1;
+          if (tileErrors >= TILE_ERROR_LIMIT && !disposed) {
+            setFailed(true);
+          }
+        });
 
         const rings = [...AREA_RINGS_KM].sort((a, b) => b - a);
         let outer: L.Circle | null = null;
@@ -127,6 +180,8 @@ export function AreaLeaflet() {
           if (!point) continue;
           const isOrigin = name === AREA_ORIGIN;
           const isBold = bold.has(name);
+          // Desktop: bold labely. Mobil: aspoň Poběžovice.
+          const permanent = isOrigin || (desktop && isBold);
 
           const marker = L.circleMarker([point.lat, point.lng], {
             radius: isOrigin ? 7 : isBold ? 5 : 4,
@@ -137,11 +192,11 @@ export function AreaLeaflet() {
           }).addTo(map);
 
           marker.bindTooltip(name, {
-            permanent: showLabels && isBold,
+            permanent,
             direction: LABEL_DIRECTION[name] ?? "right",
             className: isOrigin ? "area-tip area-tip-origin" : "area-tip",
             opacity: 1,
-            offset: [0, isOrigin ? -4 : 0],
+            offset: LABEL_OFFSET[name] ?? [0, isOrigin ? -4 : 0],
           });
         }
 
@@ -184,17 +239,14 @@ export function AreaLeaflet() {
     return () => {
       disposed = true;
       observer?.disconnect();
+      tiles?.off("tileerror");
       map?.remove();
       map = null;
     };
-  }, []);
+  }, [active, failed]);
 
   if (failed) {
-    return (
-      <div className="absolute inset-0 grid place-items-center bg-void px-6 text-center text-sm text-white/60">
-        Mapu se nepodařilo zobrazit.
-      </div>
-    );
+    return <MapSvgFallback />;
   }
 
   return (
@@ -203,6 +255,12 @@ export function AreaLeaflet() {
       className="area-leaflet absolute inset-0"
       role="region"
       aria-label="Mapa oblasti do 50 km od Poběžovic. Žluté kružnice značí 10, 25 a 50 km."
-    />
+    >
+      {!active ? (
+        <div className="grid h-full place-items-center bg-void text-sm text-white/45">
+          Načítám mapu…
+        </div>
+      ) : null}
+    </div>
   );
 }

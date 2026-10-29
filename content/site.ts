@@ -82,9 +82,9 @@ export const site = {
   nav: [
     { href: "#sluzby", label: "Služby" },
     { href: "#technika", label: "Technika" },
-    { href: "#cenik", label: "Ceník" },
     { href: "#oblast", label: "Oblast" },
     { href: "#faq", label: "FAQ" },
+    { href: "#cenik", label: "Ceník" },
     { href: "#kontakt", label: "Kontakt" },
   ],
   services: [

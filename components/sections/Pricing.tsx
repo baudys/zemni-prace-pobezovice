@@ -176,7 +176,7 @@ export function Pricing() {
           <Button type="button" className="mt-8 w-full" onClick={continueToContact}>
             Pokračovat k poptávce
           </Button>
-          <p className="mt-4 text-xs leading-relaxed text-white/40">
+          <p className="mt-4 text-xs leading-relaxed text-white/60">
             Odhad není závazná nabídka. Finální cenu potvrdíme předem v odpovědi
             na poptávku.
           </p>

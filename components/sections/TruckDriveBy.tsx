@@ -72,14 +72,14 @@ export function TruckDriveBy({ children }: Props) {
             ref={truckRef}
             className={
               reduced
-                ? "absolute bottom-0 left-1/2 w-[min(58vw,22rem)] -translate-x-1/2 md:w-[min(48vw,26rem)]"
+                ? "absolute bottom-0 right-0 w-full max-w-full md:w-[min(48vw,26rem)] md:max-w-[26rem]"
                 : "absolute bottom-0 left-0 w-[min(58vw,22rem)] will-change-transform md:w-[min(48vw,26rem)]"
             }
           >
             <AssetOrPlaceholder
               src="/truck/truck.webp"
               alt="MAN TGL s minibagrem na plošině"
-              className="block h-auto w-full select-none"
+              className="block h-auto w-full max-w-full select-none object-contain object-right"
               width={2000}
               height={1049}
               loading="lazy"

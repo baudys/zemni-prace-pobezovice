@@ -26,8 +26,12 @@ const fieldClass =
 const controlClass = `${fieldClass} h-12`;
 const selectClass = `${controlClass} appearance-none`;
 
-/** HTML pattern — pomlčka escapovaná; stejná logika jako zod na serveru. */
-const PHONE_PATTERN = "[0-9 +()\\-]{9,}";
+/** HTML pattern (flag `v`) — závorky a pomlčka escapované; min. 9 znaků. */
+const PHONE_PATTERN = "[0-9 +\\(\\)\\-]{9,}";
+
+function phoneDigitCount(value: string): number {
+  return value.replace(/\D/g, "").length;
+}
 
 const initial: InquiryState = { ok: false, message: "" };
 
@@ -101,7 +105,20 @@ export function Contact() {
 
   function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
+    const form = e.currentTarget;
+    const phoneInput = form.elements.namedItem("phone");
+    if (phoneInput instanceof HTMLInputElement) {
+      const digits = phoneDigitCount(phoneInput.value);
+      if (digits < 9) {
+        phoneInput.setCustomValidity(
+          "Zadejte platné telefonní číslo (min. 9 číslic)",
+        );
+      } else {
+        phoneInput.setCustomValidity("");
+      }
+    }
+    if (!form.reportValidity()) return;
+    const formData = new FormData(form);
     startTransition(() => {
       action(formData);
     });
@@ -122,7 +139,7 @@ export function Contact() {
                 <button
                   type="button"
                   onClick={clearApplied}
-                  className="cursor-pointer font-mono text-[11px] uppercase tracking-wide text-white/40 hover:text-white"
+                  className="cursor-pointer font-mono text-[11px] uppercase tracking-wide text-white/60 hover:text-white"
                 >
                   Odebrat
                 </button>
@@ -146,7 +163,7 @@ export function Contact() {
 
           <dl className="mt-10 space-y-5 text-white/85">
             <div>
-              <dt className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/40">
+              <dt className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/60">
                 Telefon
               </dt>
               <dd>
@@ -160,7 +177,7 @@ export function Contact() {
               </dd>
             </div>
             <div>
-              <dt className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/40">
+              <dt className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/60">
                 E-mail
               </dt>
               <dd>
@@ -170,7 +187,7 @@ export function Contact() {
               </dd>
             </div>
             <div>
-              <dt className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/40">
+              <dt className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/60">
                 Adresa
               </dt>
               <dd>
@@ -178,7 +195,7 @@ export function Contact() {
               </dd>
             </div>
             <div>
-              <dt className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/40">
+              <dt className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/60">
                 Provozní doba
               </dt>
               <dd>
@@ -282,6 +299,9 @@ export function Contact() {
                 title="Zadejte platné telefonní číslo (min. 9 číslic)"
                 className={controlClass}
                 defaultValue={values?.phone ?? ""}
+                onInput={(ev) => {
+                  ev.currentTarget.setCustomValidity("");
+                }}
               />
             </label>
           </div>

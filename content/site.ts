@@ -40,7 +40,7 @@ export function collectExamplePaths(
 }
 
 export const site = {
-  name: ex("GTS Minibagr"),
+  name: "Zemní práce Domažlicko",
   domain: ex("minibagr-gts.cz"),
   operator: "G.T.S. Poběžovice, spol. s r.o.",
   ico: "25921185",
@@ -49,8 +49,12 @@ export const site = {
   phoneHref: "tel:+420724518782",
   email: "svec@gts-pce.cz",
   emailHref: "mailto:svec@gts-pce.cz",
+  /** Provozovna (Kontakt, JSON-LD). Sídlo je `hqAddress`. */
   address: "Žižkova 188, 345 22 Poběžovice",
+  /** Sídlo dle ARES; zápis v OR ještě ověřit se Zbyňkem. */
   hqAddress: "Na Sadech 12, 252 25 Zbuzany",
+  registry:
+    "Zapsaná v obchodním rejstříku vedeném Městským soudem v Praze, oddíl C, vložka 103687.",
   openingHours: "Po–Čt 7:00–16:30, Pá 7:00–11:00",
   companyUrl: "https://www.gts-pobezovice.cz",
   contactPerson: "Zbyněk Švec",
@@ -335,7 +339,7 @@ export const site = {
     },
     {
       q: "Jak se platí?",
-      a: ex("Převodem na fakturu po dokončení, příp. [hotově/kartou – doplnit]."),
+      a: "Převodem na fakturu po dokončení.",
     },
   ],
   inquiryTypes: [
@@ -346,7 +350,7 @@ export const site = {
     { value: "jine", label: "Jiné" },
   ],
   meta: {
-    title: "Pronájem minibagru s obsluhou | Domažlicko | GTS Minibagr",
+    title: "Pronájem minibagru s obsluhou | Zemní práce Domažlicko",
     description:
       "Pronájem minibagru Komatsu PC38MR s obsluhou a dopravou. Zemní práce, terénní úpravy a odvoz suti na Domažlicku do 50 km od Poběžovic.",
   },

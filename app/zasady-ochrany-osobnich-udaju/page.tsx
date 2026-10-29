@@ -18,9 +18,11 @@ export default function PrivacyPage() {
         Zásady zpracování osobních údajů
       </h1>
       <p className="mt-6">
-        Správce: <Placeholder value={site.operator} />, IČO:{" "}
-        <Placeholder value={site.ico} />, kontaktní e-mail:{" "}
-        <Placeholder value={site.email} />.
+        Správce osobních údajů je <Placeholder value={site.operator} />, IČO{" "}
+        <Placeholder value={site.ico} />, DIČ <Placeholder value={site.dic} />,
+        se sídlem <Placeholder value={site.hqAddress} />. {site.registry}{" "}
+        Kontaktní e-mail: <Placeholder value={site.email} />. Provozovna:{" "}
+        <Placeholder value={site.address} />.
       </p>
       <p className="mt-4">
         Osobní údaje z poptávkového formuláře (jméno, telefon, e-mail, obsah
@@ -35,8 +37,7 @@ export default function PrivacyPage() {
       </p>
       <p className="mt-4">
         Máte právo na přístup, opravu, výmaz, omezení zpracování a stížnost u
-        ÚOOÚ. Před spuštěním webu text doplní správce podle skutečného provozu a
-        GDPR checklistu.
+        ÚOOÚ.
       </p>
       <p className="mt-8 text-sm text-white/50">
         {unwrap(site.name)} · {unwrap(site.domain)}

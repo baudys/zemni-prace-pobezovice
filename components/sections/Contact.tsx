@@ -191,7 +191,7 @@ export function Contact() {
             </div>
             <div>
               <dt className="font-mono text-[11px] uppercase tracking-[0.22em] text-white/60">
-                Adresa
+                Provozovna
               </dt>
               <dd>
                 <Placeholder value={site.address} />

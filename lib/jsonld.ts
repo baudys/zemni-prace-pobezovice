@@ -14,6 +14,7 @@ export function localBusinessJsonLd() {
     image: `${origin}/opengraph-image`,
     address: {
       "@type": "PostalAddress",
+      // Provozovna v Poběžovicích; sídlo (Zbuzany) je jen v patičce a zásadách.
       streetAddress: "Žižkova 188",
       addressLocality: "Poběžovice",
       postalCode: "345 22",

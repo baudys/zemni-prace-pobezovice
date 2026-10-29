@@ -17,8 +17,14 @@ export function Footer() {
             height={52}
             className="h-12 w-auto"
           />
-          <p className="mt-5 text-sm leading-relaxed text-white/55">
+          <p className="mt-5 text-sm leading-relaxed text-white/70">
             Provozuje <Placeholder value={site.operator} />
+          </p>
+          <p className="mt-2 text-sm leading-relaxed text-white/70">
+            Sídlo: <Placeholder value={site.hqAddress} />
+          </p>
+          <p className="mt-2 text-sm leading-relaxed text-white/70">
+            {site.registry}
           </p>
           <p className="mt-2 font-mono text-[11px] text-white/60">
             IČO: <Placeholder value={site.ico} /> · DIČ:{" "}
@@ -60,8 +66,8 @@ export function Footer() {
                 <Placeholder value={site.email} />
               </a>
             </li>
-            <li className="pt-2 text-white/55">
-              <Placeholder value={site.address} />
+            <li className="pt-2 text-white/70">
+              Provozovna: <Placeholder value={site.address} />
             </li>
             <li className="text-white/45">
               <Placeholder value={site.openingHours} />

@@ -43,9 +43,9 @@ export function TruckDriveBy({ children }: Props) {
           ease: "none",
           scrollTrigger: {
             trigger: drive,
-            // Start, až je pás v obraze; konec, až odjede nahoru — delší scrub.
-            start: "top 80%",
-            end: "bottom top",
+            // Jízda, dokud je pás ve viewportu (footer omezuje scroll — nečekat bottom top).
+            start: "top 90%",
+            end: "top 20%",
             scrub: 0.55,
             invalidateOnRefresh: true,
           },
@@ -66,28 +66,20 @@ export function TruckDriveBy({ children }: Props) {
         className="relative overflow-hidden bg-panel"
         aria-label="Vlastní doprava MAN TGL"
       >
-        <div className="relative h-48 w-full md:h-60">
-          <div
-            className="absolute inset-x-0 bottom-4 h-px bg-line md:bottom-5"
-            aria-hidden
-          />
-          <div
-            className="absolute inset-x-0 bottom-[0.85rem] h-0.5 bg-komatsu-yellow/45 md:bottom-[1.05rem]"
-            aria-hidden
-          />
-
+        {/* Výška pásu ≈ kamion; kola sedí na žluté hraně footeru (bez spodní mezery). */}
+        <div className="relative h-44 w-full md:h-56">
           <div
             ref={truckRef}
             className={
               reduced
-                ? "absolute bottom-4 left-1/2 w-[min(58vw,22rem)] -translate-x-1/2 md:bottom-5 md:w-[min(48vw,26rem)]"
-                : "absolute bottom-4 left-0 w-[min(58vw,22rem)] will-change-transform md:bottom-5 md:w-[min(48vw,26rem)]"
+                ? "absolute bottom-0 left-1/2 w-[min(58vw,22rem)] -translate-x-1/2 md:w-[min(48vw,26rem)]"
+                : "absolute bottom-0 left-0 w-[min(58vw,22rem)] will-change-transform md:w-[min(48vw,26rem)]"
             }
           >
             <AssetOrPlaceholder
               src="/truck/truck.webp"
               alt="MAN TGL s minibagrem na plošině"
-              className="h-auto w-full select-none object-contain object-bottom"
+              className="block h-auto w-full select-none"
               width={2000}
               height={1049}
               loading="lazy"

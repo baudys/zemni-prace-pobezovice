@@ -10,7 +10,7 @@ export function Faq() {
   const [open, setOpen] = useState<number | null>(null);
 
   return (
-    <Section id="faq" tone="void">
+    <Section id="faq" tone="void" className="!border-t-0">
       <div className="mx-auto max-w-3xl">
         <SectionHeader title="FAQ">
           Nejčastější otázky před poptávkou.

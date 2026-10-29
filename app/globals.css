@@ -96,6 +96,61 @@ body {
   cursor: help;
 }
 
+/* Ceník — žlutý range (thumb kruh + filled track řeší YellowRange) */
+.yellow-range {
+  margin: 0;
+}
+.yellow-range::-webkit-slider-runnable-track {
+  height: 8px;
+  background: transparent;
+}
+.yellow-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -5px;
+  border-radius: 9999px;
+  border: 2px solid var(--void);
+  background: var(--komatsu-yellow);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--komatsu-yellow) 50%, transparent);
+  cursor: pointer;
+}
+.yellow-range::-moz-range-track {
+  height: 8px;
+  background: transparent;
+  border: none;
+}
+.yellow-range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  border: 2px solid var(--void);
+  background: var(--komatsu-yellow);
+  cursor: pointer;
+}
+
+/* Kontakt — žluté podtržení při fokusu L→R */
+.field-focus-line {
+  position: relative;
+}
+.field-focus-line::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 100%;
+  background: var(--komatsu-yellow);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.35s ease;
+  pointer-events: none;
+}
+.field-focus-line:focus-within::after {
+  transform: scaleX(1);
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

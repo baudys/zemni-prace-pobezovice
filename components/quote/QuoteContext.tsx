@@ -21,10 +21,12 @@ const CONTAINER_FROM =
 
 export const MIN_HOURS = Math.max(1, Math.round(MIN_JOB / HOURLY));
 
+export type ContainerMode = "none" | "plato" | "sutovy";
+
 export type QuoteInput = {
   hours: number;
   kmOneWay: number;
-  container: boolean;
+  containerMode: ContainerMode;
 };
 
 export type QuoteLine = {
@@ -53,6 +55,11 @@ type QuoteContextValue = {
 
 const QuoteContext = createContext<QuoteContextValue | null>(null);
 
+const CONTAINER_LABELS: Record<Exclude<ContainerMode, "none">, string> = {
+  plato: "Plošinový kontejner 4,5 m (~5 m³)",
+  sutovy: "Suťový kontejner 4,5 m (~5 m³)",
+};
+
 export function buildEstimate(input: QuoteInput): QuoteEstimate {
   const hours = Math.max(MIN_HOURS, input.hours);
   const kmOneWay = Math.max(0, input.kmOneWay);
@@ -74,10 +81,10 @@ export function buildEstimate(input: QuoteInput): QuoteEstimate {
       amount: transport,
     },
   ];
-  if (input.container) {
+  if (input.containerMode !== "none") {
     lines.push({
       id: "container",
-      label: "Přistavení kontejneru 4,5 m (~5 m³)",
+      label: CONTAINER_LABELS[input.containerMode],
       detail: "od · dle vzdálenosti",
       amount: CONTAINER_FROM,
     });
@@ -96,7 +103,7 @@ export function buildEstimate(input: QuoteInput): QuoteEstimate {
   return {
     hours,
     kmOneWay,
-    container: input.container,
+    containerMode: input.containerMode,
     lines,
     totalEx,
     totalInc,
@@ -108,7 +115,7 @@ export function QuoteProvider({ children }: { children: ReactNode }) {
   const [draft, setDraftState] = useState<QuoteInput>({
     hours: MIN_HOURS,
     kmOneWay: 13, // Domažlice — výchozí vzdálenost v ceníku
-    container: false,
+    containerMode: "none",
   });
   const [applied, setApplied] = useState<QuoteEstimate | null>(null);
 

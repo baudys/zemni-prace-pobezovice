@@ -70,6 +70,23 @@
   font-weight: 650;
 }
 
+.area-leaflet .leaflet-tooltip.area-tip-hover {
+  padding: 6px 10px;
+  background: rgb(7 8 9 / 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.35;
+  text-shadow: none;
+  white-space: nowrap;
+}
+
+.area-leaflet .area-tip-rich {
+  color: inherit;
+}
+
 .area-leaflet .leaflet-tooltip::before {
   display: none;
 }

@@ -1,15 +1,44 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import type { Map as LeafletMap, TileLayer } from "leaflet";
-import { site } from "@/content/site";
+import type { Circle, Map as LeafletMap, TileLayer } from "leaflet";
+import gsap from "gsap";
+import { formatCzk, site } from "@/content/site";
 import {
   AREA_ORIGIN,
   AREA_RINGS_KM,
   areaCoordinates,
+  type AreaPoint,
 } from "@/content/area-places";
+import { quoteRates } from "@/components/quote/QuoteContext";
 import "leaflet/dist/leaflet.css";
 import "./area-map.css";
+
+function haversineKm(a: AreaPoint, b: AreaPoint): number {
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const R = 6371;
+  const dLat = toRad(b.lat - a.lat);
+  const dLng = toRad(b.lng - a.lng);
+  const lat1 = toRad(a.lat);
+  const lat2 = toRad(b.lat);
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+
+function townTooltipHtml(
+  name: string,
+  origin: AreaPoint,
+  point: AreaPoint,
+): string {
+  if (name === AREA_ORIGIN) {
+    return `<span class="area-tip-rich">${name} · základna</span>`;
+  }
+  const km = Math.max(1, Math.round(haversineKm(origin, point)));
+  const transport = km * 2 * quoteRates.kmRate;
+  return `<span class="area-tip-rich">${name} · ${km}&nbsp;km · doprava cca ${formatCzk(transport)}</span>`;
+}
 
 const TILE_URL =
   "https://basemap.queeniemella.cc/tiles/countries/{z}/{x}/{y}.png";
@@ -101,6 +130,7 @@ export function AreaLeaflet() {
     let observer: ResizeObserver | null = null;
     let disposed = false;
     let tileErrors = 0;
+    const ringProxies: Array<{ r: number }> = [];
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const coarse = window.matchMedia("(pointer: coarse)").matches;
@@ -154,11 +184,16 @@ export function AreaLeaflet() {
           }
         });
 
-        const rings = [...AREA_RINGS_KM].sort((a, b) => b - a);
-        let outer: L.Circle | null = null;
-        for (const km of rings) {
+        // Animate rings smallest→largest (10, 25, 50).
+        const ringKmAsc = [...AREA_RINGS_KM].sort((a, b) => a - b);
+        const ringCircles: Array<{ circle: Circle; target: number }> = [];
+        let outer: Circle | null = null;
+
+        for (const km of ringKmAsc) {
+          const target = km * 1000;
           const circle = L.circle([origin.lat, origin.lng], {
-            radius: km * 1000,
+            // Full radius first so fitBounds works; reset before tween.
+            radius: target,
             color: "#f5b800",
             weight: km === 50 ? 2 : 1,
             opacity: km === 50 ? 0.95 : 0.5,
@@ -166,6 +201,7 @@ export function AreaLeaflet() {
             fillOpacity: km === 50 ? 0.05 : 0.03,
             interactive: false,
           }).addTo(map);
+          ringCircles.push({ circle, target });
           if (km === 50) outer = circle;
         }
 
@@ -180,8 +216,6 @@ export function AreaLeaflet() {
           if (!point) continue;
           const isOrigin = name === AREA_ORIGIN;
           const isBold = bold.has(name);
-          // Desktop: bold labely. Mobil: aspoň Poběžovice.
-          const permanent = isOrigin || (desktop && isBold);
 
           const marker = L.circleMarker([point.lat, point.lng], {
             radius: isOrigin ? 7 : isBold ? 5 : 4,
@@ -191,13 +225,27 @@ export function AreaLeaflet() {
             fillOpacity: 1,
           }).addTo(map);
 
-          marker.bindTooltip(name, {
-            permanent,
-            direction: LABEL_DIRECTION[name] ?? "right",
-            className: isOrigin ? "area-tip area-tip-origin" : "area-tip",
+          // Origin: permanent short label. Others: hover (desktop) / tap (mobile).
+          const html = townTooltipHtml(name, origin, point);
+          marker.bindTooltip(html, {
+            permanent: isOrigin && desktop,
+            direction: LABEL_DIRECTION[name] ?? "top",
+            className: isOrigin
+              ? "area-tip area-tip-origin"
+              : "area-tip area-tip-hover",
             opacity: 1,
-            offset: LABEL_OFFSET[name] ?? [0, isOrigin ? -4 : 0],
+            offset: LABEL_OFFSET[name] ?? [0, -8],
+            sticky: false,
           });
+
+          if (!isOrigin || !desktop) {
+            marker.on(coarse ? "click" : "mouseover", () => {
+              marker.openTooltip();
+            });
+            if (!coarse) {
+              marker.on("mouseout", () => marker.closeTooltip());
+            }
+          }
         }
 
         const frame = map;
@@ -220,6 +268,23 @@ export function AreaLeaflet() {
 
         fitRing();
 
+        if (!reduced && !disposed) {
+          ringCircles.forEach(({ circle, target }, i) => {
+            circle.setRadius(0);
+            const proxy = { r: 0 };
+            ringProxies.push(proxy);
+            gsap.to(proxy, {
+              r: target,
+              duration: 0.85,
+              delay: i * 0.15,
+              ease: "power2.out",
+              onUpdate: () => {
+                if (!disposed) circle.setRadius(proxy.r);
+              },
+            });
+          });
+        }
+
         observer = new ResizeObserver(() => {
           const container = frame.getContainer();
           if (!container?.isConnected) return;
@@ -238,6 +303,7 @@ export function AreaLeaflet() {
 
     return () => {
       disposed = true;
+      for (const p of ringProxies) gsap.killTweensOf(p);
       observer?.disconnect();
       tiles?.off("tileerror");
       map?.remove();

@@ -4,7 +4,7 @@ import { Section, SectionHeader } from "@/components/ui/Section";
 
 export function Area() {
   return (
-    <Section id="oblast" tone="panel">
+    <Section id="oblast" tone="panel" className="!border-t-0">
       <SectionHeader title="Oblast působnosti">
         {site.areaLabel}
       </SectionHeader>

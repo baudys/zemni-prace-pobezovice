@@ -12,6 +12,7 @@ import { formatCzk, site, unwrap } from "@/content/site";
 import { Placeholder } from "@/components/ui/Placeholder";
 import { Button } from "@/components/ui/Button";
 import { Section, SectionHeader } from "@/components/ui/Section";
+import { SuccessCheck } from "@/components/ui/SuccessCheck";
 import { useQuote } from "@/components/quote/QuoteContext";
 import {
   submitInquiry,
@@ -19,12 +20,13 @@ import {
   type InquiryValues,
 } from "@/app/actions/inquiry";
 
-const fieldClass =
-  "mt-2 w-full border border-line bg-transparent px-3 py-3 text-base leading-normal text-white outline-none transition focus:border-komatsu-yellow [color-scheme:dark]";
+const fieldBase =
+  "mt-2 w-full border border-line border-b-transparent bg-transparent px-3 py-3 text-base leading-normal text-white outline-none transition [color-scheme:dark]";
 
 /** Jednořádková pole — stejná výška u input i select (Safari/Chrome jinak select zploští). */
-const controlClass = `${fieldClass} h-12`;
+const controlClass = `${fieldBase} h-12`;
 const selectClass = `${controlClass} appearance-none`;
+const areaClass = fieldBase;
 
 /** HTML pattern (flag `v`) — závorky a pomlčka escapované; min. 9 znaků. */
 const PHONE_PATTERN = "[0-9 +\\(\\)\\-]{9,}";
@@ -73,20 +75,16 @@ export function Contact() {
   const [state, action, pending] = useActionState(safeSubmitInquiry, initial);
   const [startedAt] = useState(() => String(Date.now()));
   const [note, setNote] = useState("");
-  const [formKey, setFormKey] = useState(0);
   const { applied, clearApplied } = useQuote();
   const phoneHref = unwrap(site.phoneHref);
   const mailtoFallback = `mailto:${unwrap(site.email)}`;
   const values: InquiryValues | undefined = state.values;
+  const showSuccess = state.ok;
 
   useEffect(() => {
     if (!state.ok) return;
     track("inquiry_submit", { ok: "true" });
-    // Reset až po úspěchu (ne při chybě sítě / validace).
-    queueMicrotask(() => {
-      setNote("");
-      setFormKey((k) => k + 1);
-    });
+    queueMicrotask(() => setNote(""));
   }, [state.ok]);
 
   useEffect(() => {
@@ -148,7 +146,9 @@ export function Contact() {
                 {applied.lines.map((l) => (
                   <li key={l.id} className="flex justify-between gap-3">
                     <span>{l.label}</span>
-                    <span className="tabular-nums text-white">{formatCzk(l.amount)}</span>
+                    <span className="tabular-nums text-white">
+                      {formatCzk(l.amount)}
+                    </span>
                   </li>
                 ))}
               </ul>
@@ -181,7 +181,10 @@ export function Contact() {
                 E-mail
               </dt>
               <dd>
-                <a href={`mailto:${unwrap(site.email)}`} className="hover:text-brand-red">
+                <a
+                  href={`mailto:${unwrap(site.email)}`}
+                  className="hover:text-brand-red"
+                >
                   <Placeholder value={site.email} />
                 </a>
               </dd>
@@ -212,190 +215,223 @@ export function Contact() {
           </Button>
         </div>
 
-        <form
-          key={formKey}
-          onSubmit={onSubmit}
-          className="space-y-5 border border-line p-6 md:p-8"
-          noValidate={false}
-        >
-          <input type="hidden" name="startedAt" value={startedAt} />
-          <input
-            type="text"
-            name="website"
-            tabIndex={-1}
-            autoComplete="off"
-            defaultValue=""
-            className="hidden"
-            aria-hidden="true"
-          />
-
-          <h3 className="font-display text-2xl uppercase">Poptávka</h3>
-
-          <label className="block text-sm text-white/70">
-            Co potřebujete
-            <span className="relative mt-2 block">
-              <select
-                name="type"
-                required
-                className={`${selectClass} mt-0 pr-10`}
-                defaultValue={values?.type ?? "vykop"}
-              >
-                {site.inquiryTypes.map((t) => (
-                  <option key={t.value} value={t.value}>
-                    {t.label}
-                  </option>
-                ))}
-              </select>
-              <span
-                className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-white/55"
-                aria-hidden="true"
-              >
-                ▾
-              </span>
-            </span>
-          </label>
-
-          <label className="block text-sm text-white/70">
-            Místo (obec)*
-            <input
-              name="place"
-              required
-              autoComplete="address-level2"
-              className={controlClass}
-              defaultValue={values?.place ?? ""}
-            />
-          </label>
-
-          <label className="block text-sm text-white/70">
-            Termín (orientačně)
-            <input
-              name="term"
-              type="date"
-              className={controlClass}
-              defaultValue={values?.term ?? ""}
-            />
-          </label>
-
-          <div className="grid gap-5 sm:grid-cols-2">
-            <label className="block text-sm text-white/70">
-              Jméno*
-              <input
-                name="name"
-                required
-                autoComplete="name"
-                className={controlClass}
-                defaultValue={values?.name ?? ""}
-              />
-            </label>
-            <label className="block text-sm text-white/70">
-              Telefon*
-              <input
-                name="phone"
-                required
-                type="tel"
-                inputMode="tel"
-                autoComplete="tel"
-                pattern={PHONE_PATTERN}
-                title="Zadejte platné telefonní číslo (min. 9 číslic)"
-                className={controlClass}
-                defaultValue={values?.phone ?? ""}
-                onInput={(ev) => {
-                  ev.currentTarget.setCustomValidity("");
-                }}
-              />
-            </label>
-          </div>
-
-          <label className="block text-sm text-white/70">
-            E-mail
-            <input
-              name="email"
-              type="email"
-              autoComplete="email"
-              className={controlClass}
-              defaultValue={values?.email ?? ""}
-            />
-          </label>
-
-          <label className="block text-sm text-white/70">
-            Poznámka
-            <textarea
-              name="note"
-              rows={applied ? 7 : 4}
-              className={fieldClass}
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-            />
-          </label>
-
-          <label className="flex cursor-pointer items-start gap-2 text-sm text-white/70">
-            <input
-              type="checkbox"
-              name="consent"
-              required
-              className="mt-1 accent-brand-red"
-              defaultChecked={values?.consent ?? false}
-            />
-            <span>
-              Souhlasím se{" "}
-              <a
-                href="/zasady-ochrany-osobnich-udaju"
-                className="underline underline-offset-4"
-              >
-                zpracováním osobních údajů
-              </a>
-              *
-            </span>
-          </label>
-
-          <Button type="submit" variant="primary" disabled={pending} className="w-full">
-            {pending ? "Odesílám…" : "Odeslat poptávku"}
-          </Button>
-
-          <div aria-live="polite" className="min-h-6 text-sm">
+        {showSuccess ? (
+          <div
+            className="flex flex-col items-start justify-center gap-5 border border-line p-6 md:p-8"
+            role="status"
+            aria-live="polite"
+          >
+            <SuccessCheck className="text-komatsu-yellow" />
+            <p className="font-display text-2xl uppercase text-white md:text-3xl">
+              Díky, ozveme se do 24&nbsp;h
+            </p>
             {state.message ? (
-              <p className={state.ok ? "text-komatsu-yellow" : "text-brand-red"}>
+              <p className="text-sm text-white/60">
                 {state.message.replace(
                   "1 pracovního dne",
                   unwrap(site.responseSla),
                 )}
               </p>
             ) : null}
-            {state.ok ? (
-              <div className="mt-3 flex flex-wrap gap-3">
-                {state.mailto ? (
-                  <a href={state.mailto} className="underline underline-offset-4">
-                    Otevřít e-mail (mailto)
-                  </a>
-                ) : null}
-                <a href={phoneHref} className="underline underline-offset-4">
-                  Raději zavolat
+            <div className="mt-2 flex flex-wrap gap-3 text-sm">
+              {state.mailto ? (
+                <a href={state.mailto} className="underline underline-offset-4">
+                  Otevřít e-mail (mailto)
                 </a>
-              </div>
-            ) : null}
-            {!state.ok && state.message.includes("nepodařilo") ? (
-              <div className="mt-3 flex flex-wrap gap-3">
-                <a href={mailtoFallback} className="underline underline-offset-4">
-                  Napsat e-mailem
-                </a>
-                <a href={phoneHref} className="underline underline-offset-4">
-                  Raději zavolat
-                </a>
-              </div>
-            ) : null}
-            {state.fieldErrors ? (
-              <ul className="mt-2 list-disc pl-5 text-brand-red">
-                {Object.entries(state.fieldErrors).map(([k, errs]) =>
-                  errs?.map((e) => (
-                    <li key={`${k}-${e}`}>
-                      {fieldLabels[k] ?? k}: {e}
-                    </li>
-                  )),
-                )}
-              </ul>
-            ) : null}
+              ) : null}
+              <a href={phoneHref} className="underline underline-offset-4">
+                Raději zavolat
+              </a>
+            </div>
           </div>
-        </form>
+        ) : (
+          <form
+            onSubmit={onSubmit}
+            className="space-y-5 border border-line p-6 md:p-8"
+            noValidate={false}
+          >
+            <input type="hidden" name="startedAt" value={startedAt} />
+            <input
+              type="text"
+              name="website"
+              tabIndex={-1}
+              autoComplete="off"
+              defaultValue=""
+              className="hidden"
+              aria-hidden="true"
+            />
+
+            <h3 className="font-display text-2xl uppercase">Poptávka</h3>
+
+            <label className="block text-sm text-white/70">
+              Co potřebujete
+              <span className="field-focus-line relative mt-2 block">
+                <select
+                  name="type"
+                  required
+                  className={`${selectClass} mt-0 pr-10`}
+                  defaultValue={values?.type ?? "vykop"}
+                >
+                  {site.inquiryTypes.map((t) => (
+                    <option key={t.value} value={t.value}>
+                      {t.label}
+                    </option>
+                  ))}
+                </select>
+                <span
+                  className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-white/55"
+                  aria-hidden="true"
+                >
+                  ▾
+                </span>
+              </span>
+            </label>
+
+            <label className="block text-sm text-white/70">
+              Místo (obec)*
+              <span className="field-focus-line relative block">
+                <input
+                  name="place"
+                  required
+                  autoComplete="address-level2"
+                  className={controlClass}
+                  defaultValue={values?.place ?? ""}
+                />
+              </span>
+            </label>
+
+            <label className="block text-sm text-white/70">
+              Termín (orientačně)
+              <span className="field-focus-line relative block">
+                <input
+                  name="term"
+                  type="date"
+                  className={controlClass}
+                  defaultValue={values?.term ?? ""}
+                />
+              </span>
+            </label>
+
+            <div className="grid gap-5 sm:grid-cols-2">
+              <label className="block text-sm text-white/70">
+                Jméno*
+                <span className="field-focus-line relative block">
+                  <input
+                    name="name"
+                    required
+                    autoComplete="name"
+                    className={controlClass}
+                    defaultValue={values?.name ?? ""}
+                  />
+                </span>
+              </label>
+              <label className="block text-sm text-white/70">
+                Telefon*
+                <span className="field-focus-line relative block">
+                  <input
+                    name="phone"
+                    required
+                    type="tel"
+                    inputMode="tel"
+                    autoComplete="tel"
+                    pattern={PHONE_PATTERN}
+                    title="Zadejte platné telefonní číslo (min. 9 číslic)"
+                    className={controlClass}
+                    defaultValue={values?.phone ?? ""}
+                    onInput={(ev) => {
+                      ev.currentTarget.setCustomValidity("");
+                    }}
+                  />
+                </span>
+              </label>
+            </div>
+
+            <label className="block text-sm text-white/70">
+              E-mail
+              <span className="field-focus-line relative block">
+                <input
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  className={controlClass}
+                  defaultValue={values?.email ?? ""}
+                />
+              </span>
+            </label>
+
+            <label className="block text-sm text-white/70">
+              Poznámka
+              <span className="field-focus-line relative block">
+                <textarea
+                  name="note"
+                  rows={applied ? 7 : 4}
+                  className={areaClass}
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                />
+              </span>
+            </label>
+
+            <label className="flex cursor-pointer items-start gap-2 text-sm text-white/70">
+              <input
+                type="checkbox"
+                name="consent"
+                required
+                className="mt-1 accent-brand-red"
+                defaultChecked={values?.consent ?? false}
+              />
+              <span>
+                Souhlasím se{" "}
+                <a
+                  href="/zasady-ochrany-osobnich-udaju"
+                  className="underline underline-offset-4"
+                >
+                  zpracováním osobních údajů
+                </a>
+                *
+              </span>
+            </label>
+
+            <Button
+              type="submit"
+              variant="primary"
+              disabled={pending}
+              className="w-full"
+            >
+              {pending ? "Odesílám…" : "Odeslat poptávku"}
+            </Button>
+
+            <div aria-live="polite" className="min-h-6 text-sm">
+              {state.message && !state.ok ? (
+                <p className="text-brand-red">{state.message}</p>
+              ) : null}
+              {!state.ok && state.message.includes("nepodařilo") ? (
+                <div className="mt-3 flex flex-wrap gap-3">
+                  <a
+                    href={mailtoFallback}
+                    className="underline underline-offset-4"
+                  >
+                    Napsat e-mailem
+                  </a>
+                  <a href={phoneHref} className="underline underline-offset-4">
+                    Raději zavolat
+                  </a>
+                </div>
+              ) : null}
+              {state.fieldErrors ? (
+                <ul className="mt-2 list-disc pl-5 text-brand-red">
+                  {Object.entries(state.fieldErrors).map(([k, errs]) =>
+                    errs?.map((e) => (
+                      <li key={`${k}-${e}`}>
+                        {fieldLabels[k] ?? k}: {e}
+                      </li>
+                    )),
+                  )}
+                </ul>
+              ) : null}
+            </div>
+          </form>
+        )}
       </div>
     </Section>
   );

@@ -4,6 +4,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { AssetOrPlaceholder } from "@/components/ui/AssetOrPlaceholder";
+import { TrackDivider } from "@/components/ui/TrackDivider";
 import { Footer } from "@/components/sections/Footer";
 import { useReducedMotion } from "@/components/motion/useReducedMotion";
 
@@ -86,6 +87,12 @@ export function TruckDriveBy({ children }: Props) {
             />
           </div>
         </div>
+        <TrackDivider
+          hideMachine
+          scrubStart="top 90%"
+          scrubEnd="top 20%"
+          className="bg-panel"
+        />
       </section>
       <Footer />
     </div>

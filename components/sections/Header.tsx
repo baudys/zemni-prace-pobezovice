@@ -7,6 +7,7 @@ import { track } from "@vercel/analytics";
 import { site, unwrap } from "@/content/site";
 import { Button } from "@/components/ui/Button";
 import { Placeholder } from "@/components/ui/Placeholder";
+import { ScrollProgress } from "@/components/ui/ScrollProgress";
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -124,6 +125,7 @@ export function Header() {
           </ul>
         </nav>
       ) : null}
+      <ScrollProgress />
     </header>
   );
 }

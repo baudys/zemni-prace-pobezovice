@@ -8,6 +8,7 @@ import { useLowEndDevice } from "@/components/motion/useLowEndDevice";
 import { useReducedMotion } from "@/components/motion/useReducedMotion";
 import { AssetOrPlaceholder } from "@/components/ui/AssetOrPlaceholder";
 import { Button } from "@/components/ui/Button";
+import { MagneticPrimaryCta } from "@/components/ui/MagneticPrimaryCta";
 
 /** Hold dig still + fade hero copy before scrubbing frames. */
 const HERO_HOLD = 0.02;
@@ -43,9 +44,13 @@ async function loadManifest(url: string): Promise<Manifest | null> {
   }
 }
 
-/** Desktop: mírně vlevo od středu. Mobil: víc doprava, ať je vidět celá kabina. */
+/**
+ * Cover focus (0 = left/top edge, 1 = right/bottom).
+ * Dig frames are 16:9 with the excavator near horizontal center / lower third —
+ * on portrait mobile a high X (e.g. 0.78) crops to empty field and hides the machine.
+ */
 const FOCUS_DESKTOP = { x: 0.4, y: 0.55 } as const;
-const FOCUS_MOBILE = { x: 0.78, y: 0.52 } as const;
+const FOCUS_MOBILE = { x: 0.46, y: 0.62 } as const;
 
 function drawCover(
   ctx: CanvasRenderingContext2D,
@@ -56,13 +61,21 @@ function drawCover(
   ih: number,
   focusX: number = FOCUS_DESKTOP.x,
   focusY: number = FOCUS_DESKTOP.y,
+  /** On portrait phones, keep at least this fraction of source width visible. */
+  minWidthFrac?: number,
 ) {
-  const scale = Math.max(cw / iw, ch / ih);
+  let scale = Math.max(cw / iw, ch / ih);
+  if (minWidthFrac && minWidthFrac > 0) {
+    // Cap zoom so the excavator isn't cropped to a sliver of the 16:9 plate.
+    scale = Math.min(scale, cw / (iw * minWidthFrac));
+  }
   const dw = iw * scale;
   const dh = ih * scale;
   const dx = focusX * (cw - dw);
   const dy = focusY * (ch - dh);
-  ctx.clearRect(0, 0, cw, ch);
+  // Letterbox fill when mobile scale backs off from pure cover.
+  ctx.fillStyle = "#0c1018";
+  ctx.fillRect(0, 0, cw, ch);
   ctx.drawImage(img, dx, dy, dw, dh);
 }
 
@@ -156,12 +169,12 @@ function HeroCopy() {
         data-hero="cta"
         className="relative z-10 mt-7 flex flex-wrap items-center justify-center gap-3 pointer-events-auto"
       >
-        <Button
+        <MagneticPrimaryCta
           href="#kontakt"
           onClick={() => track("cta_click", { source: "hero" })}
         >
           {site.hero.cta}
-        </Button>
+        </MagneticPrimaryCta>
         <Button
           href="#cenik"
           variant="outline"
@@ -212,7 +225,7 @@ function StaticHero({ firstFrame }: { firstFrame: string }) {
           <AssetOrPlaceholder
             src={firstFrame}
             alt=""
-            className="h-full w-full object-cover object-[78%_52%] md:object-[40%_55%]"
+            className="h-full w-full bg-[#0c1018] object-contain object-[46%_62%] md:object-cover md:object-[40%_55%]"
           />
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/20 to-transparent" />
@@ -476,6 +489,8 @@ export function ScrollSequence() {
           ih,
           focus.x,
           focus.y,
+          // ~42 % of 16:9 plate ≈ whole minibagr on typical phone widths.
+          isMobile ? 0.42 : undefined,
         );
         lastDrawn = index;
       };
@@ -622,7 +637,7 @@ export function ScrollSequence() {
               height={1080}
               fetchPriority="high"
               decoding="async"
-              className="absolute inset-0 h-full w-full object-cover object-[40%_55%] transition-opacity duration-300"
+              className="absolute inset-0 h-full w-full bg-[#0c1018] object-contain object-[46%_62%] transition-opacity duration-300 md:object-cover md:object-[40%_55%]"
             />
           </picture>
         </div>

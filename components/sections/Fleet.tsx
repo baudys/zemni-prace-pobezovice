@@ -89,7 +89,7 @@ export function Fleet() {
   if (!bagr) return null;
 
   return (
-    <Section id="technika" tone="void">
+    <Section id="technika" tone="void" className="!border-t-0">
       <SectionHeader title="Technika">
         Hlavní je minibagr Komatsu – doprava a kontejner jdou s ním.
       </SectionHeader>

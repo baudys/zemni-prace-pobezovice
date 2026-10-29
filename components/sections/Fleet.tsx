@@ -179,18 +179,6 @@ export function Fleet() {
                 <p className="mt-2 text-sm leading-relaxed text-white/55">
                   {item.blurb}
                 </p>
-                <p className="mt-3 font-mono text-[11px] text-white/60">
-                  {item.specs
-                    .slice(0, 2)
-                    .map((s) => {
-                      const val =
-                        typeof s.value === "number"
-                          ? `${formatSpecNumber(s.value, "decimals" in s ? s.decimals : 0)}${s.unit ? `\u00a0${s.unit}` : ""}`
-                          : unwrap(s.value);
-                      return `${s.label.toLowerCase()} ${val}`.trim();
-                    })
-                    .join(" · ")}
-                </p>
               </div>
             </li>
           ))}

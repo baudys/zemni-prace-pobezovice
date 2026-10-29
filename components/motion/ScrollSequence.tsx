@@ -46,11 +46,11 @@ async function loadManifest(url: string): Promise<Manifest | null> {
 
 /**
  * Cover focus (0 = left/top edge, 1 = right/bottom).
- * Dig frames are 16:9 with the excavator near horizontal center / lower third —
- * on portrait mobile a high X (e.g. 0.78) crops to empty field and hides the machine.
+ * Dig frames are 16:9; the excavator sits near x 0.46 / y 0.59.
+ * Portrait phones crop the sides — bias slightly left so the raised bucket stays in frame.
  */
 const FOCUS_DESKTOP = { x: 0.4, y: 0.55 } as const;
-const FOCUS_MOBILE = { x: 0.46, y: 0.62 } as const;
+const FOCUS_MOBILE = { x: 0.34, y: 0.59 } as const;
 
 function drawCover(
   ctx: CanvasRenderingContext2D,
@@ -61,19 +61,12 @@ function drawCover(
   ih: number,
   focusX: number = FOCUS_DESKTOP.x,
   focusY: number = FOCUS_DESKTOP.y,
-  /** On portrait phones, keep at least this fraction of source width visible. */
-  minWidthFrac?: number,
 ) {
-  let scale = Math.max(cw / iw, ch / ih);
-  if (minWidthFrac && minWidthFrac > 0) {
-    // Cap zoom so the excavator isn't cropped to a sliver of the 16:9 plate.
-    scale = Math.min(scale, cw / (iw * minWidthFrac));
-  }
+  const scale = Math.max(cw / iw, ch / ih);
   const dw = iw * scale;
   const dh = ih * scale;
   const dx = focusX * (cw - dw);
   const dy = focusY * (ch - dh);
-  // Letterbox fill when mobile scale backs off from pure cover.
   ctx.fillStyle = "#0c1018";
   ctx.fillRect(0, 0, cw, ch);
   ctx.drawImage(img, dx, dy, dw, dh);
@@ -188,7 +181,7 @@ function HeroCopy() {
 }
 
 const heroCopyLayout =
-  "mx-auto flex w-full max-w-4xl flex-col items-center px-4 sm:px-6 pt-[max(6.5rem,11vh)] text-center pb-[min(52vh,28rem)] md:pb-[min(54vh,32rem)]";
+  "mx-auto flex w-full max-w-4xl flex-col items-center px-4 sm:px-6 pt-[max(9.5rem,calc(11vh+3rem))] text-center pb-[min(52vh,28rem)] md:pt-[max(6.5rem,11vh)] md:pb-[min(54vh,32rem)]";
 
 function StaticHero({ firstFrame }: { firstFrame: string }) {
   const mediaRef = useRef<HTMLDivElement>(null);
@@ -225,7 +218,7 @@ function StaticHero({ firstFrame }: { firstFrame: string }) {
           <AssetOrPlaceholder
             src={firstFrame}
             alt=""
-            className="h-full w-full bg-[#0c1018] object-contain object-[46%_62%] md:object-cover md:object-[40%_55%]"
+            className="h-full w-full bg-[#0c1018] object-cover object-[34%_59%] md:object-[40%_55%]"
           />
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/20 to-transparent" />
@@ -452,10 +445,16 @@ export function ScrollSequence() {
       ctx.imageSmoothingEnabled = true;
       ctx.imageSmoothingQuality = "high";
 
+      let viewW = window.innerWidth;
+      let viewH = window.innerHeight;
+
       const resize = () => {
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        const w = window.innerWidth;
-        const h = window.innerHeight;
+        const stage = canvas.parentElement;
+        const w = stage?.clientWidth || window.innerWidth;
+        const h = stage?.clientHeight || window.innerHeight;
+        viewW = w;
+        viewH = h;
         canvas.width = Math.floor(w * dpr);
         canvas.height = Math.floor(h * dpr);
         canvas.style.width = `${w}px`;
@@ -480,18 +479,7 @@ export function ScrollSequence() {
             ? hit.img.naturalHeight || digHeight
             : hit.img.height;
         const focus = isMobile ? FOCUS_MOBILE : FOCUS_DESKTOP;
-        drawCover(
-          ctx,
-          hit.img,
-          window.innerWidth,
-          window.innerHeight,
-          iw,
-          ih,
-          focus.x,
-          focus.y,
-          // ~42 % of 16:9 plate ≈ whole minibagr on typical phone widths.
-          isMobile ? 0.42 : undefined,
-        );
+        drawCover(ctx, hit.img, viewW, viewH, iw, ih, focus.x, focus.y);
         lastDrawn = index;
       };
       paintFn = paint;
@@ -637,7 +625,7 @@ export function ScrollSequence() {
               height={1080}
               fetchPriority="high"
               decoding="async"
-              className="absolute inset-0 h-full w-full bg-[#0c1018] object-contain object-[46%_62%] transition-opacity duration-300 md:object-cover md:object-[40%_55%]"
+              className="absolute inset-0 h-full w-full bg-[#0c1018] object-cover object-[34%_59%] transition-opacity duration-300 md:object-[40%_55%]"
             />
           </picture>
         </div>

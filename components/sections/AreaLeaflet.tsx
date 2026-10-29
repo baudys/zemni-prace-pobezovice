@@ -3,14 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import type { Circle, Map as LeafletMap, TileLayer } from "leaflet";
 import gsap from "gsap";
-import { formatCzk, site } from "@/content/site";
+import { site } from "@/content/site";
 import {
   AREA_ORIGIN,
   AREA_RINGS_KM,
   areaCoordinates,
   type AreaPoint,
 } from "@/content/area-places";
-import { quoteRates } from "@/components/quote/QuoteContext";
 import "leaflet/dist/leaflet.css";
 import "./area-map.css";
 
@@ -36,15 +35,19 @@ function townTooltipHtml(
     return `<span class="area-tip-rich">${name} · základna</span>`;
   }
   const km = Math.max(1, Math.round(haversineKm(origin, point)));
-  const transport = km * 2 * quoteRates.kmRate;
-  return `<span class="area-tip-rich">${name} · ${km}&nbsp;km · doprava cca ${formatCzk(transport)}</span>`;
+  return `<span class="area-tip-rich">${name} · ${km}&nbsp;km</span>`;
 }
 
+/**
+ * Esri World Dark Gray — free raster XYZ, readable on dark UI.
+ * (CARTO now requires API key; previous custom basemap was nearly black.)
+ * Note Esri order: {z}/{y}/{x}.
+ */
 const TILE_URL =
-  "https://basemap.queeniemella.cc/tiles/countries/{z}/{x}/{y}.png";
+  "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}";
 
 const TILE_ATTRIBUTION =
-  '© <a href="https://queeniemella.cc">queeniemella</a> | © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+  '© <a href="https://www.esri.com/">Esri</a> · <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 
 const LABEL_DIRECTION: Record<string, "left" | "right" | "top" | "bottom"> = {
   Poběžovice: "top",
@@ -130,6 +133,7 @@ export function AreaLeaflet() {
     let observer: ResizeObserver | null = null;
     let disposed = false;
     let tileErrors = 0;
+    let tilesLoaded = 0;
     const ringProxies: Array<{ r: number }> = [];
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -172,14 +176,22 @@ export function AreaLeaflet() {
           .addTo(map);
 
         tiles = L.tileLayer(TILE_URL, {
-          maxZoom: 20,
+          maxZoom: 16,
           attribution: TILE_ATTRIBUTION,
           errorTileUrl: TRANSPARENT_TILE,
         }).addTo(map);
 
+        tiles.on("tileload", () => {
+          tilesLoaded += 1;
+        });
+        // Spurious tileerror during fitBounds/retina — fallback only if nothing painted.
         tiles.on("tileerror", () => {
           tileErrors += 1;
-          if (tileErrors >= TILE_ERROR_LIMIT && !disposed) {
+          if (
+            tilesLoaded === 0 &&
+            tileErrors >= TILE_ERROR_LIMIT &&
+            !disposed
+          ) {
             setFailed(true);
           }
         });
@@ -306,6 +318,7 @@ export function AreaLeaflet() {
       for (const p of ringProxies) gsap.killTweensOf(p);
       observer?.disconnect();
       tiles?.off("tileerror");
+      tiles?.off("tileload");
       map?.remove();
       map = null;
     };

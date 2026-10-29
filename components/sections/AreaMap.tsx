@@ -47,8 +47,8 @@ const mapFallback = (
 );
 
 /**
- * Interaktivní mapa dosahu. Dlaždice jsou tmavý XYZ podklad (ne veřejný
- * tile server OpenStreetMap). Atribuce je v rohu mapy.
+ * Interaktivní mapa dosahu. Tmavý XYZ podklad (Esri World Dark Gray).
+ * Atribuce je v rohu mapy; při totálním výpadku tiles → SVG fallback.
  */
 export function AreaMap() {
   return (

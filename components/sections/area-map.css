@@ -33,7 +33,6 @@
 }
 
 .area-leaflet .leaflet-control-attribution {
-  max-width: min(100% - 12px, 320px);
   margin: 0;
   padding: 3px 6px;
   border-radius: 0;
@@ -41,6 +40,7 @@
   color: rgb(255 255 255 / 0.62);
   font-size: 10px;
   line-height: 1.35;
+  white-space: nowrap;
 }
 
 .area-leaflet .leaflet-control-attribution a {

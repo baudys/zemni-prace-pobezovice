@@ -4,7 +4,6 @@ import { useEffect, useRef, type ReactNode } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { AssetOrPlaceholder } from "@/components/ui/AssetOrPlaceholder";
-import { TrackDivider } from "@/components/ui/TrackDivider";
 import { Footer } from "@/components/sections/Footer";
 import { useReducedMotion } from "@/components/motion/useReducedMotion";
 
@@ -15,9 +14,9 @@ type Props = {
 };
 
 /**
- * Kontakt → MAN pás → footer.
+ * Kontakt → MAN → footer.
  * Bez sticky (nepřekrývá formulář). MAN přijede zleva a zastaví se
- * před pravým okrajem během průchodu pásem.
+ * před pravým okrajem během průchodu sekcí.
  */
 export function TruckDriveBy({ children }: Props) {
   const driveRef = useRef<HTMLElement>(null);
@@ -44,7 +43,7 @@ export function TruckDriveBy({ children }: Props) {
           ease: "none",
           scrollTrigger: {
             trigger: drive,
-            // Jízda, dokud je pás ve viewportu (footer omezuje scroll — nečekat bottom top).
+            // Jízda, dokud je sekce ve viewportu (footer omezuje scroll — nečekat bottom top).
             start: "top 90%",
             end: "top 20%",
             scrub: 0.55,
@@ -67,7 +66,6 @@ export function TruckDriveBy({ children }: Props) {
         className="relative overflow-hidden bg-panel"
         aria-label="Vlastní doprava MAN TGL"
       >
-        {/* Výška pásu ≈ kamion; kola sedí na žluté hraně footeru (bez spodní mezery). */}
         <div className="relative h-44 w-full md:h-56">
           <div
             ref={truckRef}
@@ -87,12 +85,6 @@ export function TruckDriveBy({ children }: Props) {
             />
           </div>
         </div>
-        <TrackDivider
-          hideMachine
-          scrubStart="top 90%"
-          scrubEnd="top 20%"
-          className="bg-panel"
-        />
       </section>
       <Footer />
     </div>

@@ -16,7 +16,6 @@ export default function HomePage() {
       <Header />
       <main>
         <ScrollSequence />
-        <TrackDivider />
         <Services />
         <TrackDivider />
         <Fleet />

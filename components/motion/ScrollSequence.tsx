@@ -44,6 +44,39 @@ async function loadManifest(url: string): Promise<Manifest | null> {
   }
 }
 
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const id = window.setTimeout(() => reject(new Error("timeout")), ms);
+    promise.then(
+      (value) => {
+        window.clearTimeout(id);
+        resolve(value);
+      },
+      (err: unknown) => {
+        window.clearTimeout(id);
+        reject(err);
+      },
+    );
+  });
+}
+
+function getCanvas2d(canvas: HTMLCanvasElement): CanvasRenderingContext2D | null {
+  try {
+    const withSpace = canvas.getContext("2d", {
+      alpha: false,
+      colorSpace: "srgb",
+    });
+    if (withSpace) return withSpace;
+  } catch {
+    // Older WebKit may reject colorSpace — fall through.
+  }
+  try {
+    return canvas.getContext("2d", { alpha: false });
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Cover focus (0 = left/top edge, 1 = right/bottom).
  * Dig frames are 16:9; the excavator sits near x 0.46 / y 0.59.
@@ -283,14 +316,21 @@ export function ScrollSequence() {
         const img = new Image();
         img.decoding = "async";
         img.src = src;
-        await img.decode();
-        if ("createImageBitmap" in window) {
-          try {
-            return await createImageBitmap(img);
-          } catch {
-            return img;
+        try {
+          await withTimeout(img.decode(), 8000);
+        } catch {
+          if (!(img.complete && img.naturalWidth > 0)) {
+            await withTimeout(
+              new Promise<void>((resolve, reject) => {
+                img.onload = () => resolve();
+                img.onerror = () => reject(new Error("img error"));
+              }),
+              8000,
+            );
           }
         }
+        // HTMLImageElement only — createImageBitmap on 200+ WebPs stalls scrub
+        // (nearestLoaded freezes on the first idle frames for seconds).
         return img;
       } catch {
         return null;
@@ -308,7 +348,8 @@ export function ScrollSequence() {
 
     const applyText = (frameProgress: number) => {
       let textIdx = -1;
-      if (frameProgress > 0.02) {
+      // Titulky hned po HERO_HOLD — dřívější práh 0.02 nechával „mrtvou“ mezeru se zamrzlým bagrem.
+      if (frameProgress > 0) {
         textIdx = site.scrollTexts.findIndex(
           (t) => frameProgress >= t.start && frameProgress < t.end,
         );
@@ -338,12 +379,22 @@ export function ScrollSequence() {
       return Math.min(1, Math.max(0, -section.getBoundingClientRect().top / total));
     };
 
+    /** Priority frame loader — keep scrub responsive instead of freezing on early idle frames. */
+    let enqueueLoad: ((i: number, priority?: boolean) => void) | null = null;
+
     const paintIndex = (idx: number) => {
       if (!paintFn || pathsLen < 1) return;
       const clamped = Math.min(pathsLen - 1, Math.max(0, idx));
       if (clamped !== lastPaintIdx) {
         lastPaintIdx = clamped;
         paintFn(clamped);
+      }
+      // Always pull frames around the scrub head so nearestLoaded can catch up.
+      if (enqueueLoad) {
+        for (let d = 0; d <= 10; d++) {
+          enqueueLoad(clamped + d, true);
+          if (d > 0) enqueueLoad(clamped - d, true);
+        }
       }
     };
 
@@ -447,7 +498,7 @@ export function ScrollSequence() {
         if (!cancelled) setLoadFailed(true);
         return;
       }
-      const ctx = canvas.getContext("2d", { alpha: false, colorSpace: "srgb" });
+      const ctx = getCanvas2d(canvas);
       if (!ctx) {
         if (!cancelled) setLoadFailed(true);
         return;
@@ -494,12 +545,53 @@ export function ScrollSequence() {
       };
       paintFn = paint;
 
-      const loadAt = async (i: number) => {
-        if (cancelled || frames[i]) return;
-        const path = paths[i];
-        if (!path) return;
-        frames[i] = await loadImage(path);
-        paint(lastDrawn >= 0 ? lastDrawn : 0, true);
+      // Bounded concurrency + priority queue. Flooding dozens of createImageBitmap
+      // calls previously left scrub stuck on the first ~15 idle frames for seconds.
+      const MAX_CONCURRENT = 6;
+      const requested = new Set<number>();
+      const queue: number[] = [];
+      let activeLoads = 0;
+
+      const pumpLoads = () => {
+        while (activeLoads < MAX_CONCURRENT && queue.length > 0) {
+          const i = queue.shift();
+          if (i === undefined) break;
+          if (frames[i] || i < 0 || i >= paths.length) continue;
+          const path = paths[i];
+          if (!path) continue;
+          activeLoads += 1;
+          void loadImage(path).then((img) => {
+            activeLoads -= 1;
+            if (!cancelled) {
+              frames[i] = img;
+              // Always refresh scrub head — previously a tight distance check
+              // skipped updates and left the excavator frozen on early idle frames.
+              if (img && lastPaintIdx >= 0) {
+                paint(lastPaintIdx, true);
+              }
+              pumpLoads();
+            }
+          });
+        }
+      };
+
+      enqueueLoad = (i: number, priority = false) => {
+        if (i < 0 || i >= paths.length || frames[i]) return;
+        if (requested.has(i)) {
+          // Boost an already-queued frame to the front when scrub needs it now.
+          if (priority) {
+            const at = queue.indexOf(i);
+            if (at > 0) {
+              queue.splice(at, 1);
+              queue.unshift(i);
+            }
+          }
+          return;
+        }
+        requested.add(i);
+        if (priority) queue.unshift(i);
+        else queue.push(i);
+        pumpLoads();
       };
 
       resize();
@@ -507,8 +599,13 @@ export function ScrollSequence() {
       window.addEventListener("resize", resize);
 
       const preloadFirst = Math.min(IDLE_LOOP_FRAMES + 2, digPaths.length);
-      await loadAt(0);
+      frames[0] = await loadImage(paths[0]!);
       if (cancelled) return;
+      if (!frames[0]) {
+        if (!cancelled) setLoadFailed(true);
+        return;
+      }
+      requested.add(0);
       paint(0, true);
       ready = true;
       if (stillRef.current) {
@@ -517,48 +614,28 @@ export function ScrollSequence() {
       }
       lastTickTime = performance.now();
       paintIndex(Math.round(idlePos));
+      // Catch up if user already scrolled while the first frame was loading.
+      onTick();
 
-      void Promise.all(
-        Array.from({ length: preloadFirst }, (_, i) => loadAt(i)),
-      ).then(() => {
-        if (!cancelled) paint(lastPaintIdx >= 0 ? lastPaintIdx : 0, true);
-      });
-
-      const everyFourth: number[] = [];
-      for (let i = preloadFirst; i < paths.length; i += 4) everyFourth.push(i);
-      void Promise.all(everyFourth.map((i) => loadAt(i)));
-
-      const fillRest = async () => {
-        for (let i = 0; i < paths.length; i++) {
-          if (cancelled) return;
-          if (!frames[i]) await loadAt(i);
-          if (i % 8 === 0) {
-            await new Promise<void>((r) => setTimeout(r, 0));
-          }
-        }
-      };
-
-      const io = new IntersectionObserver(
-        (entries) => {
-          if (entries.some((e) => e.isIntersecting)) {
-            void fillRest();
-            io.disconnect();
-          }
-        },
-        { rootMargin: "200%" },
-      );
-      io.observe(section);
+      // Idle loop + early dig first, then rest of dig, then underground.
+      for (let i = 1; i < preloadFirst; i++) enqueueLoad(i, true);
+      for (let i = preloadFirst; i < digPaths.length; i++) enqueueLoad(i, false);
+      for (let i = digPaths.length; i < paths.length; i++) enqueueLoad(i, false);
 
       return () => {
         window.removeEventListener("resize", resize);
-        io.disconnect();
+        queue.length = 0;
       };
     }
 
     let cleanupInner: (() => void) | undefined;
-    void setup().then((c) => {
-      cleanupInner = c;
-    });
+    void setup()
+      .then((c) => {
+        cleanupInner = c;
+      })
+      .catch(() => {
+        if (!cancelled) setLoadFailed(true);
+      });
 
     return () => {
       cancelled = true;

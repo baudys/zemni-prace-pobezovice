@@ -183,7 +183,7 @@ function HeroCopy() {
 const heroCopyLayout =
   "mx-auto flex w-full max-w-4xl flex-col items-center px-4 sm:px-6 pt-[max(9.5rem,calc(11vh+3rem))] text-center pb-[min(52vh,28rem)] md:pt-[max(6.5rem,11vh)] md:pb-[min(54vh,32rem)]";
 
-function StaticHero({ firstFrame }: { firstFrame: string }) {
+function StaticHero() {
   const mediaRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
 
@@ -215,11 +215,21 @@ function StaticHero({ firstFrame }: { firstFrame: string }) {
     >
       <div className="absolute inset-0 overflow-hidden">
         <div ref={mediaRef} className="h-full w-full will-change-transform">
-          <AssetOrPlaceholder
-            src={firstFrame}
-            alt=""
-            className="h-full w-full bg-[#0c1018] object-cover object-[34%_59%] md:object-[40%_55%]"
-          />
+          <picture>
+            <source
+              media="(max-width: 767px)"
+              srcSet={DIG_FIRST_MOBILE}
+              type="image/webp"
+            />
+            <img
+              src={DIG_FIRST}
+              alt=""
+              width={1920}
+              height={1080}
+              decoding="async"
+              className="h-full w-full bg-[#0c1018] object-cover object-[34%_59%] md:object-[40%_55%]"
+            />
+          </picture>
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/20 to-transparent" />
       </div>
@@ -565,7 +575,7 @@ export function ScrollSequence() {
   if (fallback) {
     return (
       <>
-        <StaticHero firstFrame={DIG_FIRST} />
+        <StaticHero />
         <section id="v-akci" className="bg-ink">
           <div className="relative mx-auto max-w-6xl px-4 py-16">
             <AssetOrPlaceholder

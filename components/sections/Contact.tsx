@@ -20,7 +20,11 @@ import {
 } from "@/app/actions/inquiry";
 
 const fieldClass =
-  "mt-2 w-full border border-line bg-transparent px-3 py-3 text-white outline-none transition focus:border-komatsu-yellow [color-scheme:dark]";
+  "mt-2 w-full border border-line bg-transparent px-3 py-3 text-base leading-normal text-white outline-none transition focus:border-komatsu-yellow [color-scheme:dark]";
+
+/** Jednořádková pole — stejná výška u input i select (Safari/Chrome jinak select zploští). */
+const controlClass = `${fieldClass} h-12`;
+const selectClass = `${controlClass} appearance-none`;
 
 /** HTML pattern — pomlčka escapovaná; stejná logika jako zod na serveru. */
 const PHONE_PATTERN = "[0-9 +()\\-]{9,}";
@@ -212,18 +216,26 @@ export function Contact() {
 
           <label className="block text-sm text-white/70">
             Co potřebujete
-            <select
-              name="type"
-              required
-              className={fieldClass}
-              defaultValue={values?.type ?? "vykop"}
-            >
-              {site.inquiryTypes.map((t) => (
-                <option key={t.value} value={t.value}>
-                  {t.label}
-                </option>
-              ))}
-            </select>
+            <span className="relative mt-2 block">
+              <select
+                name="type"
+                required
+                className={`${selectClass} mt-0 pr-10`}
+                defaultValue={values?.type ?? "vykop"}
+              >
+                {site.inquiryTypes.map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
+                ))}
+              </select>
+              <span
+                className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-white/55"
+                aria-hidden="true"
+              >
+                ▾
+              </span>
+            </span>
           </label>
 
           <label className="block text-sm text-white/70">
@@ -232,7 +244,7 @@ export function Contact() {
               name="place"
               required
               autoComplete="address-level2"
-              className={fieldClass}
+              className={controlClass}
               defaultValue={values?.place ?? ""}
             />
           </label>
@@ -242,7 +254,7 @@ export function Contact() {
             <input
               name="term"
               type="date"
-              className={fieldClass}
+              className={controlClass}
               defaultValue={values?.term ?? ""}
             />
           </label>
@@ -254,7 +266,7 @@ export function Contact() {
                 name="name"
                 required
                 autoComplete="name"
-                className={fieldClass}
+                className={controlClass}
                 defaultValue={values?.name ?? ""}
               />
             </label>
@@ -268,7 +280,7 @@ export function Contact() {
                 autoComplete="tel"
                 pattern={PHONE_PATTERN}
                 title="Zadejte platné telefonní číslo (min. 9 číslic)"
-                className={fieldClass}
+                className={controlClass}
                 defaultValue={values?.phone ?? ""}
               />
             </label>
@@ -280,7 +292,7 @@ export function Contact() {
               name="email"
               type="email"
               autoComplete="email"
-              className={fieldClass}
+              className={controlClass}
               defaultValue={values?.email ?? ""}
             />
           </label>

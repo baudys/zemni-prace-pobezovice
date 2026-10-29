@@ -9,10 +9,10 @@ export function Area() {
         {site.areaLabel}
       </SectionHeader>
 
-      <div className="relative mt-14 grid items-start gap-12 lg:grid-cols-2 lg:gap-16">
+      <div className="relative mt-14">
         <AreaMap />
 
-        <div>
+        <div className="mt-8 max-w-3xl">
           <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-komatsu-yellow">
             Obce a města v dosahu
           </p>

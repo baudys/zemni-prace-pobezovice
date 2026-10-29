@@ -1,27 +1,62 @@
+"use client";
+
+import dynamic from "next/dynamic";
+import { Component, type ReactNode } from "react";
+
+const AreaLeaflet = dynamic(
+  () => import("./AreaLeaflet").then((mod) => mod.AreaLeaflet),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="grid h-full place-items-center bg-void text-sm text-white/45">
+        Načítám mapu…
+      </div>
+    ),
+  },
+);
+
+type BoundaryProps = {
+  children: ReactNode;
+  fallback: ReactNode;
+};
+
+type BoundaryState = {
+  hasError: boolean;
+};
+
+class MapErrorBoundary extends Component<BoundaryProps, BoundaryState> {
+  state: BoundaryState = { hasError: false };
+
+  static getDerivedStateFromError(): BoundaryState {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) return this.props.fallback;
+    return this.props.children;
+  }
+}
+
+const mapFallback = (
+  <div className="grid h-full place-items-center bg-void px-6 text-center text-sm text-white/60">
+    Mapu se nepodařilo zobrazit.
+  </div>
+);
+
 /**
- * Statická mapa oblasti — bez OSM tile CDN (Tile Usage Policy).
- * Popisky jen u hlavních měst; ostatní obce jsou tečky (title = tooltip).
- * Atribuce © OpenStreetMap contributors.
+ * Interaktivní mapa dosahu. Dlaždice jsou tmavý XYZ podklad (ne veřejný
+ * tile server OpenStreetMap). Atribuce je v rohu mapy.
  */
 export function AreaMap() {
   return (
-    <figure className="area-map-shell relative z-0 isolate m-0 overflow-hidden border border-line bg-void">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="/map/oblast.svg"
-        alt="Mapa oblasti do 50 km od Poběžovic. Hlavní města: Poběžovice, Domažlice, Horšovský Týn, Tachov, Klatovy."
-        width={800}
-        height={800}
-        className="aspect-square h-auto w-full object-contain object-center md:h-[480px] md:object-cover"
-        loading="lazy"
-        decoding="async"
-      />
+    <figure className="relative z-0 isolate m-0 flex h-[420px] flex-col overflow-hidden border border-line bg-void md:h-[520px]">
+      <div className="relative min-h-0 flex-1">
+        <MapErrorBoundary fallback={mapFallback}>
+          <AreaLeaflet />
+        </MapErrorBoundary>
+      </div>
       <figcaption className="border-t border-line px-3 py-2 text-center font-mono text-[11px] tracking-wide text-white/45">
-        <span className="sm:hidden">okruh 50 km</span>
-        <span className="hidden sm:inline">okruh 50 km · 10 / 25 / 50</span>
-        <span className="mt-1 block text-[10px] text-white/30">
-          © OpenStreetMap contributors · stylizovaná mapa
-        </span>
+        okruh 10 / 25 / 50 km od Poběžovic
       </figcaption>
     </figure>
   );

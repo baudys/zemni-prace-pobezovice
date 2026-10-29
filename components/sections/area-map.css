@@ -1,0 +1,75 @@
+.area-leaflet.leaflet-container {
+  background: #070809;
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+.area-leaflet.leaflet-container:focus-visible {
+  outline: 2px solid var(--komatsu-yellow);
+  outline-offset: -2px;
+}
+
+.area-leaflet .leaflet-bar {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.area-leaflet .leaflet-bar a,
+.area-leaflet .leaflet-bar a:hover,
+.area-leaflet .leaflet-bar a:focus {
+  width: 36px;
+  height: 36px;
+  line-height: 36px;
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--ink);
+  border-bottom-color: rgba(7, 8, 9, 0.14);
+  font-size: 18px;
+}
+
+.area-leaflet .leaflet-bar a:hover,
+.area-leaflet .leaflet-bar a:focus {
+  background: #fff;
+}
+
+.area-leaflet .leaflet-control-attribution {
+  max-width: min(100% - 12px, 320px);
+  margin: 0;
+  padding: 3px 6px;
+  border-radius: 0;
+  background: rgb(7 8 9 / 0.82);
+  color: rgb(255 255 255 / 0.62);
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.area-leaflet .leaflet-control-attribution a {
+  color: #fff;
+}
+
+.area-leaflet .leaflet-tooltip.area-tip {
+  padding: 0 0 0 2px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--komatsu-yellow);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.2;
+  text-shadow:
+    0 1px 2px rgb(0 0 0 / 0.95),
+    0 0 8px rgb(0 0 0 / 0.85);
+}
+
+.area-leaflet .leaflet-tooltip.area-tip-origin {
+  color: #fff;
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.area-leaflet .leaflet-tooltip::before {
+  display: none;
+}

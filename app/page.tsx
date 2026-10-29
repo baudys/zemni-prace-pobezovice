@@ -7,6 +7,7 @@ import { Contact } from "@/components/sections/Contact";
 import { Area } from "@/components/sections/Area";
 import { Faq } from "@/components/sections/Faq";
 import { TruckDriveBy } from "@/components/sections/TruckDriveBy";
+import { Footer } from "@/components/sections/Footer";
 import { QuoteProvider } from "@/components/quote/QuoteContext";
 import { TrackDivider } from "@/components/ui/TrackDivider";
 
@@ -17,7 +18,7 @@ export default function HomePage() {
       <main>
         <ScrollSequence />
         <Services />
-        <TrackDivider />
+        <TruckDriveBy />
         <Fleet />
         <TrackDivider />
         <Area />
@@ -27,10 +28,9 @@ export default function HomePage() {
           <TrackDivider />
           <Pricing />
           <TrackDivider />
-          <TruckDriveBy>
-            <Contact />
-          </TruckDriveBy>
+          <Contact />
         </QuoteProvider>
+        <Footer />
       </main>
     </>
   );

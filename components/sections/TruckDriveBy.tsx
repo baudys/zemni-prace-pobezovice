@@ -1,24 +1,18 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { AssetOrPlaceholder } from "@/components/ui/AssetOrPlaceholder";
-import { Footer } from "@/components/sections/Footer";
 import { useReducedMotion } from "@/components/motion/useReducedMotion";
 
 gsap.registerPlugin(ScrollTrigger);
 
-type Props = {
-  children: ReactNode;
-};
-
 /**
- * Kontakt → MAN → footer.
- * Bez sticky (nepřekrývá formulář). MAN přijede zleva a zastaví se
- * před pravým okrajem během průchodu sekcí.
+ * Služby → MAN → Technika.
+ * MAN přijede zleva a zastaví se před pravým okrajem během průchodu sekcí.
  */
-export function TruckDriveBy({ children }: Props) {
+export function TruckDriveBy() {
   const driveRef = useRef<HTMLElement>(null);
   const truckRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
@@ -43,7 +37,6 @@ export function TruckDriveBy({ children }: Props) {
           ease: "none",
           scrollTrigger: {
             trigger: drive,
-            // Jízda, dokud je sekce ve viewportu (footer omezuje scroll — nečekat bottom top).
             start: "top 90%",
             end: "top 20%",
             scrub: 0.55,
@@ -58,35 +51,37 @@ export function TruckDriveBy({ children }: Props) {
   }, [reduced]);
 
   return (
-    <div className="relative bg-panel">
-      {children}
-      <section
-        ref={driveRef}
-        id="preprava"
-        className="relative overflow-hidden bg-panel"
-        aria-label="Vlastní doprava MAN TGL"
-      >
-        <div className="relative h-44 w-full md:h-56">
-          <div
-            ref={truckRef}
-            className={
-              reduced
-                ? "absolute bottom-0 right-0 w-full max-w-full md:w-[min(48vw,26rem)] md:max-w-[26rem]"
-                : "absolute bottom-0 left-0 w-[min(58vw,22rem)] will-change-transform md:w-[min(48vw,26rem)]"
-            }
-          >
-            <AssetOrPlaceholder
-              src="/truck/truck.webp"
-              alt="MAN TGL s minibagrem na plošině"
-              className="block h-auto w-full max-w-full select-none object-contain object-right"
-              width={2000}
-              height={1049}
-              loading="lazy"
-            />
-          </div>
+    <section
+      ref={driveRef}
+      id="preprava"
+      className="relative overflow-hidden bg-panel"
+      aria-label="Vlastní doprava MAN TGL"
+    >
+      <div className="relative h-44 w-full md:h-56">
+        <div
+          ref={truckRef}
+          className={
+            reduced
+              ? "absolute bottom-1 right-0 z-10 w-full max-w-full md:bottom-1.5 md:w-[min(48vw,26rem)] md:max-w-[26rem]"
+              : "absolute bottom-1 left-0 z-10 w-[min(58vw,22rem)] will-change-transform md:bottom-1.5 md:w-[min(48vw,26rem)]"
+          }
+        >
+          <AssetOrPlaceholder
+            src="/truck/truck.webp"
+            alt="MAN TGL s minibagrem na plošině"
+            className="block h-auto w-full max-w-full select-none object-contain object-right"
+            width={2000}
+            height={1049}
+            loading="lazy"
+          />
         </div>
-      </section>
-      <Footer />
-    </div>
+
+        {/* Žlutá silnice pod koly */}
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-1 bg-komatsu-yellow md:h-1.5"
+          aria-hidden
+        />
+      </div>
+    </section>
   );
 }

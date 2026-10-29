@@ -96,13 +96,13 @@ export function Fleet() {
 
       <article className="mt-14">
         <div className="grid items-center gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] lg:gap-16">
-          <div className="relative overflow-hidden border border-line">
+          <div className="relative aspect-[4/3] w-full overflow-hidden border border-line">
             <AssetOrPlaceholder
               src={bagr.image}
               alt={bagr.imageAlt}
               width={1024}
               height={768}
-              className="aspect-[4/3] h-auto w-full object-cover"
+              className="absolute inset-0 h-full w-full object-cover"
               loading="lazy"
             />
             {showEx && isPlaceholderPhotoPath(bagr.image) ? (
@@ -149,10 +149,10 @@ export function Fleet() {
       </article>
 
       <div className="mt-16 border-t border-line pt-10">
-        <ul className="grid gap-8 md:grid-cols-2 md:gap-12">
+        <ul className="grid gap-8 lg:grid-cols-2 lg:gap-12">
           {extras.map((item) => (
-            <li key={item.id} className="flex gap-5">
-              <div className="relative aspect-[4/3] w-36 shrink-0 bg-void sm:w-40">
+            <li key={item.id} className="flex items-start gap-5">
+              <div className="relative aspect-[4/3] w-36 shrink-0 self-start overflow-hidden bg-void sm:w-44">
                 <AssetOrPlaceholder
                   src={item.image}
                   alt={item.imageAlt}

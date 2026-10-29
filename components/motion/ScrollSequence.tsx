@@ -423,11 +423,13 @@ export function ScrollSequence() {
         if (!cancelled) setLoadFailed(true);
         return;
       }
-      const ctx = canvas.getContext("2d", { alpha: false });
+      const ctx = canvas.getContext("2d", { alpha: false, colorSpace: "srgb" });
       if (!ctx) {
         if (!cancelled) setLoadFailed(true);
         return;
       }
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = "high";
 
       const resize = () => {
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -438,6 +440,9 @@ export function ScrollSequence() {
         canvas.style.width = `${w}px`;
         canvas.style.height = `${h}px`;
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        // Reset after buffer resize (browsers drop these with canvas.width assign).
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
         if (lastDrawn >= 0) paint(lastDrawn, true);
       };
 

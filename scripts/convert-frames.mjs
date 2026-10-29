@@ -3,7 +3,7 @@
  * Převod vyexportovaných snímků (JPG/PNG z ezgif apod.) na sekvenci WebP pro scroll animaci.
  *
  * Použití:
- *   node scripts/convert-frames.mjs --in <složka s JPG> --out public/seq/dig [--width 1920] [--height 1080] [--quality 70] [--mobile 960]
+ *   node scripts/convert-frames.mjs --in <složka s JPG> --out public/seq/dig [--width 1920] [--height 1080] [--quality 85] [--mobile 960]
  *
  * - Snímky seřadí podle čísla v názvu (ezgif-frame-001.jpg, frame_12.png, ...).
  * - Každý ořízne/zvětší na přesně width×height (fit: cover, střed) => sjednocené rozměry.
@@ -19,7 +19,7 @@ import sharp from "sharp";
 
 function args() {
   const a = process.argv.slice(2);
-  const o = { width: 1920, height: 1080, quality: 70, mobile: 0 };
+  const o = { width: 1920, height: 1080, quality: 85, mobile: 0 };
   for (let i = 0; i < a.length; i += 2) {
     const k = a[i].replace(/^--/, "");
     o[k] = a[i + 1];

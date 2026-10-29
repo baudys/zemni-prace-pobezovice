@@ -49,13 +49,9 @@ export function Faq() {
                 >
                   <div className="overflow-hidden">
                     <div className={`text-white/65 ${isOpen ? "pb-5" : "pb-0"}`}>
-                      {typeof item.a === "string" ? (
-                        <p>{item.a}</p>
-                      ) : (
-                        <p>
-                          <Placeholder value={item.a} />
-                        </p>
-                      )}
+                      <p>
+                        <Placeholder value={item.a} />
+                      </p>
                     </div>
                   </div>
                 </div>

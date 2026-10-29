@@ -75,7 +75,6 @@ export const site = {
       "Strojník v ceně",
       "Vlastní doprava MAN",
       "Kontejner na suť hned na místě",
-      "Férová cena předem",
     ],
     years: ex("[X let praxe]"),
     jobs: ex("[X zakázek]"),

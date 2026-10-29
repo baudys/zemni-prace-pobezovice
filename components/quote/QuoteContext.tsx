@@ -107,7 +107,7 @@ export function buildEstimate(input: QuoteInput): QuoteEstimate {
 export function QuoteProvider({ children }: { children: ReactNode }) {
   const [draft, setDraftState] = useState<QuoteInput>({
     hours: MIN_HOURS,
-    kmOneWay: 20,
+    kmOneWay: 13, // Domažlice — výchozí vzdálenost v ceníku
     container: false,
   });
   const [applied, setApplied] = useState<QuoteEstimate | null>(null);

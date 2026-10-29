@@ -4,7 +4,6 @@ import {
   startTransition,
   useActionState,
   useEffect,
-  useMemo,
   useState,
   type FormEvent,
 } from "react";
@@ -96,8 +95,6 @@ export function Contact() {
     });
   }, [applied]);
 
-  const claimPoints = useMemo(() => site.claim.points, []);
-
   function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -111,14 +108,6 @@ export function Contact() {
       <div className="grid gap-14 lg:grid-cols-2 lg:gap-16">
         <div>
           <SectionHeader title="Kontakt" />
-          <ul className="mt-6 space-y-2 text-white/65">
-            {claimPoints.map((p) => (
-              <li key={p} className="flex gap-3">
-                <span className="mt-2 h-px w-4 shrink-0 bg-komatsu-yellow/70" aria-hidden />
-                <span>{p}</span>
-              </li>
-            ))}
-          </ul>
 
           {applied ? (
             <div className="mt-10 border border-line bg-void/50 p-5">
@@ -159,7 +148,7 @@ export function Contact() {
               <dd>
                 <a
                   href={phoneHref}
-                  className="text-xl text-white hover:text-brand-red"
+                  className="text-white hover:text-brand-red"
                   onClick={() => track("phone_click", { source: "contact" })}
                 >
                   <Placeholder value={site.phone} />

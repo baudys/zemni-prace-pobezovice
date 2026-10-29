@@ -7,7 +7,6 @@ import { landmarkForKm } from "@/content/map-towns";
 import { Section, SectionHeader } from "@/components/ui/Section";
 import { Button } from "@/components/ui/Button";
 import { quoteRates, useQuote } from "@/components/quote/QuoteContext";
-import { showPlaceholders } from "@/lib/placeholders";
 
 const KM_MAX = 60;
 
@@ -17,8 +16,6 @@ export function Pricing() {
   const containerId = useId();
   const { draft, setDraft, estimate, applyToContact } = useQuote();
   const townHint = landmarkForKm(estimate.kmOneWay);
-  const ratesAreExample =
-    showPlaceholders() && site.pricing.some((p) => "example" in p && p.example);
 
   function continueToContact() {
     applyToContact();
@@ -29,15 +26,6 @@ export function Pricing() {
   return (
     <Section id="cenik" tone="deep">
       <SectionHeader title="Ceník">{site.pricingDisclaimer}</SectionHeader>
-      {ratesAreExample ? (
-        <p
-          className="placeholder-mark mt-4 inline-block font-mono text-[11px] uppercase tracking-[0.18em] text-komatsu-yellow"
-          title="UKÁZKOVÁ DATA – nahradit před spuštěním"
-          data-example="true"
-        >
-          UKÁZKOVÁ DATA – sazby ověřit u provozovatele
-        </p>
-      ) : null}
 
       <div className="mt-14 grid gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-16">
         <fieldset className="space-y-8 border-0 p-0">
